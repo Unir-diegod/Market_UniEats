@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a UniEats</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #1a1a1a;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: right;
+            padding: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 40px;
+            text-align: center;
+            border-radius: 0;
+        }
+        
+        .burger-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .banner h1 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        
+        .banner p {
+            font-size: 16px;
+            color: #f0f0f0;
+            margin-bottom: 0;
+        }
+        
+        .content {
+            padding: 40px;
+            background-color: #1a1a1a;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .greeting .name {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .greeting .wave {
+            display: inline-block;
+            animation: wave 1s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(20deg); }
+            75% { transform: rotate(-20deg); }
+        }
+        
+        .message {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+        
+        .features {
+            margin: 30px 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .feature-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+        
+        .feature-content p {
+            font-size: 14px;
+            color: #aaaaaa;
+            margin: 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .footer {
+            background-color: #0a0a0a;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #333;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        .social-links {
+            margin: 15px 0;
+        }
+        
+        .social-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #333, transparent);
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            UniEats Marketplace - <span th:text="${#dates.format(#dates.createNow(), 'h:mm a')}">11:16 a.m.</span>
+        </div>
+        
+        <!-- Banner Principal -->
+        <div class="banner">
+            <span class="burger-icon">🍔</span>
+            <h1>¡Bienvenido a Uni-Eats!</h1>
+            <p>Tu marketplace de comida universitario</p>
+        </div>
+        
+        <!-- Contenido Principal -->
+        <div class="content">
+            <div class="greeting">
+                ¡Hola <span class="name" th:text="${nombreUsuario}">Diego</span>! <span class="wave">👋</span>
+            </div>
+            
+            <div class="message">
+                Nos complace confirmarte que tu cuenta ha sido creada exitosamente en Uni-Eats. 
+                <strong>¡Ya eres parte de nuestra comunidad!</strong>
+            </div>
+            
+            <!-- Características -->
+            <div class="features">
+                <div class="feature-item">
+                    <div class="feature-icon">🍕</div>
+                    <div class="feature-content">
+                        <h3>Explora Tiendas</h3>
+                        <p>Descubre una variedad de tiendas con comida deliciosa a precios de estudiante</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-content">
+                        <h3>Órdenes Rápidas</h3>
+                        <p>Pide tu comida favorita con solo unos clics</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">⭐</div>
+                    <div class="feature-content">
+                        <h3>Gana Puntos</h3>
+                        <p>Acumula puntos de lealtad y disfruta de descuentos exclusivos</p>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🎁</div>
+                    <div class="feature-content">
+                        <h3>Cupones Especiales</h3>
+                        <p>Acceso a ofertas y promociones solo para nuestros usuarios</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Call to Action -->
+            <div style="text-align: center;">
+                <p style="margin-bottom: 20px; color: #aaa;">¿Listo para comenzar?</p>
+                <a href="http://localhost:8092/" class="cta-button">
+                    🚀 Explorar Marketplace
+                </a>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="message" style="font-size: 13px; color: #888;">
+                <p><strong>Consejos para empezar:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Completa tu perfil para una mejor experiencia</li>
+                    <li>Explora las tiendas disponibles en tu zona</li>
+                    <li>Guarda tus platillos favoritos</li>
+                    <li>Activa las notificaciones para no perderte ofertas</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>UniEats Marketplace</strong></p>
+            <p>Tu marketplace de comida universitario 🍔</p>
+            
+            <div class="social-links">
+                <a href="#">Facebook</a> | 
+                <a href="#">Instagram</a> | 
+                <a href="#">Twitter</a>
+            </div>
+            
+            <div class="divider" style="margin: 20px auto; max-width: 80%;"></div>
+            
+            <p>Este correo fue enviado automáticamente porque iniciaste sesión en UniEats.</p>
+            <p>Si no reconoces esta actividad, por favor contacta a soporte.</p>
+            
+            <p style="margin-top: 20px; color: #555;">
+                © 2025 UniEats Marketplace. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

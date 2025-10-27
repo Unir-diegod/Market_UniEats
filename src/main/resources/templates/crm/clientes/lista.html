@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes CRM - UniEats</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .clientes-container {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .filtros {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+        }
+        .tabla-clientes {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #FF6B35;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background: #f9f9f9;
+        }
+        .nivel-badge {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .nivel-BRONCE { background: #cd7f32; color: white; }
+        .nivel-PLATA { background: #c0c0c0; color: #333; }
+        .nivel-ORO { background: #ffd700; color: #333; }
+        .nivel-PLATINUM { background: #e5e4e2; color: #333; }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            background: #FF6B35;
+            color: white;
+        }
+        .btn:hover {
+            background: #E55A2A;
+        }
+    </style>
+</head>
+<body>
+    <div class="clientes-container">
+        <h1>Gestión de Clientes</h1>
+
+        <div class="filtros">
+            <button onclick="filtrarClientes('todos')" class="btn">Todos</button>
+            <button onclick="filtrarClientes('activos')" class="btn">Activos</button>
+            <button onclick="filtrarClientes('inactivos')" class="btn">Inactivos</button>
+            <button onclick="filtrarClientes('vip')" class="btn">VIP</button>
+        </div>
+
+        <div class="tabla-clientes">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Email</th>
+                        <th>Nivel</th>
+                        <th>Pedidos</th>
+                        <th>Valor Total</th>
+                        <th>Ticket Promedio</th>
+                        <th>Última Compra</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body">
+                    <tr th:each="cliente : ${clientes}">
+                        <td th:text="${cliente.id}">1</td>
+                        <td th:text="${cliente.nombreCompleto}">Nombre Cliente</td>
+                        <td th:text="${cliente.correo}">email@example.com</td>
+                        <td>
+                            <span class="nivel-badge" 
+                                  th:classappend="'nivel-' + ${cliente.nivelCliente}"
+                                  th:text="${cliente.nivelCliente}">BRONCE</span>
+                        </td>
+                        <td th:text="${cliente.numeroPedidos}">0</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(cliente.valorTotalCompras, 0, 'COMMA', 0, 'POINT')}">$0</td>
+                        <td th:text="'$' + ${#numbers.formatDecimal(cliente.ticketPromedio, 0, 'COMMA', 0, 'POINT')}">$0</td>
+                        <td th:text="${cliente.ultimaCompra != null ? #temporals.format(cliente.ultimaCompra, 'dd/MM/yyyy') : 'Nunca'}">-</td>
+                        <td>
+                            <a th:href="@{/crm/clientes/{id}(id=${cliente.id})}" class="btn">Ver</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a th:href="@{/crm/dashboard}" class="btn">← Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        function filtrarClientes(filtro) {
+            let url = '/crm/clientes/api';
+            if (filtro === 'activos') url += '/activos';
+            else if (filtro === 'inactivos') url += '/inactivos';
+            else if (filtro === 'vip') url += '/top?valorMinimo=100000';
+            
+            if (filtro !== 'todos') {
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => actualizarTabla(data));
+            } else {
+                location.reload();
+            }
+        }
+
+        function actualizarTabla(clientes) {
+            const tbody = document.getElementById('tabla-body');
+            tbody.innerHTML = clientes.map(cliente => `
+                <tr>
+                    <td>${cliente.id}</td>
+                    <td>${cliente.nombreCompleto}</td>
+                    <td>${cliente.correo}</td>
+                    <td><span class="nivel-badge nivel-${cliente.nivelCliente}">${cliente.nivelCliente}</span></td>
+                    <td>${cliente.numeroPedidos}</td>
+                    <td>$${cliente.valorTotalCompras.toLocaleString()}</td>
+                    <td>$${cliente.ticketPromedio.toLocaleString()}</td>
+                    <td>${cliente.ultimaCompra ? new Date(cliente.ultimaCompra).toLocaleDateString() : 'Nunca'}</td>
+                    <td><a href="/crm/clientes/${cliente.id}" class="btn">Ver</a></td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

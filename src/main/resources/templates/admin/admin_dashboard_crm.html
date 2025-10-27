@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard CRM - UniEats Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --warning-gradient: linear-gradient(135deg, #F2994A 0%, #F2C94C 100%);
+            --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            --info-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            background: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-crm {
+            background: var(--primary-gradient);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .navbar-crm .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .navbar-crm .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+
+        .navbar-crm .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .dashboard-header h1 {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border-left: 5px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            opacity: 0.1;
+            border-radius: 50%;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card.primary {
+            border-left-color: #667eea;
+        }
+        .kpi-card.primary::before {
+            background: #667eea;
+        }
+
+        .kpi-card.success {
+            border-left-color: #11998e;
+        }
+        .kpi-card.success::before {
+            background: #11998e;
+        }
+
+        .kpi-card.warning {
+            border-left-color: #F2994A;
+        }
+        .kpi-card.warning::before {
+            background: #F2994A;
+        }
+
+        .kpi-card.danger {
+            border-left-color: #eb3349;
+        }
+        .kpi-card.danger::before {
+            background: #eb3349;
+        }
+
+        .kpi-card.info {
+            border-left-color: #3498db;
+        }
+        .kpi-card.info::before {
+            background: #3498db;
+        }
+
+        .kpi-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+            line-height: 1;
+        }
+
+        .kpi-label {
+            color: #6c757d;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-change {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .kpi-change.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .kpi-change.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-title i {
+            color: #667eea;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .table-modern {
+            margin: 0;
+        }
+
+        .table-modern thead {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .table-modern thead th {
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table-modern tbody tr {
+            transition: all 0.3s;
+        }
+
+        .table-modern tbody tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.02);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .table-modern tbody td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        .badge-modern {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .progress-bar-animated {
+            animation: progress-animation 1s ease-out;
+        }
+
+        @keyframes progress-animation {
+            from { width: 0; }
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3rem;
+        }
+
+        .metric-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .metric-badge.high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .metric-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .metric-badge.low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .segmento-widget {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .segmento-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .segmento-item:last-child {
+            border-bottom: none;
+        }
+
+        .segmento-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .segmento-count {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .kpi-card {
+                margin-bottom: 15px;
+            }
+            
+            .kpi-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-crm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin/dashboard">
+                <i class="fas fa-chart-line"></i> UniEats CRM
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/crm/dashboard">
+                            <i class="fas fa-chart-pie"></i> Dashboard CRM
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/crm/clientes">
+                            <i class="fas fa-users"></i> Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/crm/campanas">
+                            <i class="fas fa-bullhorn"></i> Campañas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Salir
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid py-4">
+        
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-chart-line"></i> Dashboard CRM</h1>
+                    <p class="text-muted mb-0">Análisis completo de métricas de marketing y CRM</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="exportarReporte()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando métricas del CRM...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" style="display: none;">
+
+            <!-- KPIs Row 1 -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="kpi-card primary">
+                        <div class="kpi-icon">
+                            <i class="fas fa-users" style="color: #667eea;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-total-clientes">0</div>
+                        <div class="kpi-label">Total Clientes</div>
+                        <div class="kpi-change positive" id="kpi-clientes-change">
+                            <i class="fas fa-arrow-up"></i> <span id="kpi-clientes-nuevos">0</span> nuevos
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="kpi-card success">
+                        <div class="kpi-icon">
+                            <i class="fas fa-dollar-sign" style="color: #11998e;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-ingresos">$0</div>
+                        <div class="kpi-label">Ingresos Totales</div>
+                        <div class="kpi-change positive" id="kpi-crecimiento">
+                            <i class="fas fa-arrow-up"></i> <span id="kpi-crecimiento-valor">0</span>%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="kpi-card warning">
+                        <div class="kpi-icon">
+                            <i class="fas fa-bullhorn" style="color: #F2994A;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-campanas-activas">0</div>
+                        <div class="kpi-label">Campañas Activas</div>
+                        <div class="kpi-change" id="kpi-campanas-info">
+                            <i class="fas fa-chart-line"></i> <span id="kpi-total-campanas">0</span> total
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="kpi-card danger">
+                        <div class="kpi-icon">
+                            <i class="fas fa-percentage" style="color: #eb3349;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-roi">0%</div>
+                        <div class="kpi-label">ROI Promedio</div>
+                        <div class="kpi-change positive" id="kpi-roi-status">
+                            <i class="fas fa-chart-line"></i> Excelente
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs Row 2 -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="kpi-card info">
+                        <div class="kpi-icon">
+                            <i class="fas fa-envelope-open" style="color: #3498db;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-tasa-apertura">0%</div>
+                        <div class="kpi-label">Tasa Apertura Email</div>
+                        <div class="metric-badge high" id="kpi-apertura-badge">
+                            <i class="fas fa-check-circle"></i> Alta
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="kpi-card primary">
+                        <div class="kpi-icon">
+                            <i class="fas fa-mouse-pointer" style="color: #667eea;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-tasa-clics">0%</div>
+                        <div class="kpi-label">Tasa de Clics</div>
+                        <div class="metric-badge medium" id="kpi-clics-badge">
+                            <i class="fas fa-minus-circle"></i> Media
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="kpi-card success">
+                        <div class="kpi-icon">
+                            <i class="fas fa-shopping-cart" style="color: #11998e;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-conversiones">0</div>
+                        <div class="kpi-label">Conversiones Email</div>
+                        <div class="kpi-change positive" id="kpi-tasa-conversion">
+                            <i class="fas fa-arrow-up"></i> <span id="kpi-tasa-conversion-valor">0</span>%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="kpi-card warning">
+                        <div class="kpi-icon">
+                            <i class="fas fa-receipt" style="color: #F2994A;"></i>
+                        </div>
+                        <div class="kpi-value" id="kpi-ticket-promedio">$0</div>
+                        <div class="kpi-label">Ticket Promedio</div>
+                        <div class="kpi-change" id="kpi-ticket-info">
+                            <i class="fas fa-info-circle"></i> Por cliente
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row">
+                <!-- Tendencia de Ventas -->
+                <div class="col-md-8">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-area"></i>
+                            Tendencia de Ventas (Últimos 7 días)
+                        </div>
+                        <canvas id="ventasChart" height="80"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distribución Clientes por Nivel -->
+                <div class="col-md-4">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Clientes por Nivel
+                        </div>
+                        <canvas id="nivelesChart" height="160"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="row">
+                <!-- Campañas por Estado -->
+                <div class="col-md-4">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Campañas por Estado
+                        </div>
+                        <canvas id="campanasChart" height="160"></canvas>
+                    </div>
+                </div>
+
+                <!-- Segmentos Widget -->
+                <div class="col-md-4">
+                    <div class="segmento-widget">
+                        <div class="chart-title">
+                            <i class="fas fa-users-cog"></i>
+                            Segmentos Activos
+                        </div>
+                        <div id="segmentosContainer">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nuevos Clientes -->
+                <div class="col-md-4">
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <i class="fas fa-user-plus"></i>
+                            Nuevos Clientes (7 días)
+                        </div>
+                        <canvas id="clientesChart" height="160"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables Row -->
+            <div class="row">
+                <!-- Top Productos -->
+                <div class="col-md-6">
+                    <div class="table-container">
+                        <div class="chart-title">
+                            <i class="fas fa-trophy"></i>
+                            Top 10 Productos Más Vendidos
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Producto</th>
+                                        <th>Vendedor</th>
+                                        <th>Cantidad</th>
+                                        <th>Ingresos</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topProductosTable">
+                                    <!-- Se llena dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Vendedores -->
+                <div class="col-md-6">
+                    <div class="table-container">
+                        <div class="chart-title">
+                            <i class="fas fa-star"></i>
+                            Top 10 Vendedores/Tiendas
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-modern">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Tienda</th>
+                                        <th>Pedidos</th>
+                                        <th>Clientes</th>
+                                        <th>Ingresos</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topVendedoresTable">
+                                    <!-- Se llena dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dashboard JS -->
+    <script>
+        let dashboardData = null;
+        let charts = {};
+
+        // Cargar dashboard al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+        });
+
+        async function loadDashboard() {
+            try {
+                document.getElementById('loadingSpinner').style.display = 'block';
+                document.getElementById('dashboardContent').style.display = 'none';
+
+                const response = await fetch('/crm/dashboard/api/metricas-completas');
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error('Error al cargar datos: ' + response.status);
+                }
+
+                dashboardData = await response.json();
+                console.log('Dashboard data loaded:', dashboardData);
+                
+                // Verificar si hay datos
+                if (!dashboardData || dashboardData.totalClientes === 0) {
+                    mostrarMensajeSinDatos();
+                    return;
+                }
+                
+                renderDashboard();
+                
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error completo:', error);
+                document.getElementById('loadingSpinner').style.display = 'none';
+                mostrarMensajeError(error.message);
+            }
+        }
+
+        function mostrarMensajeSinDatos() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('dashboardContent').innerHTML = `
+                <div class="alert alert-info text-center p-5" style="margin: 50px auto; max-width: 600px;">
+                    <i class="fas fa-info-circle fa-3x mb-3"></i>
+                    <h3>No hay datos disponibles</h3>
+                    <p class="mb-4">El sistema aún no tiene clientes, campañas o interacciones registradas.</p>
+                    <p>Para empezar a ver métricas del CRM:</p>
+                    <ul class="text-start" style="max-width: 400px; margin: 20px auto;">
+                        <li>Crea usuarios con rol ESTUDIANTE</li>
+                        <li>Crea campañas de marketing</li>
+                        <li>Crea segmentos de clientes</li>
+                        <li>Envía emails a través del sistema</li>
+                    </ul>
+                    <a href="/admin/dashboard" class="btn btn-primary mt-3">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard Principal
+                    </a>
+                </div>
+            `;
+            document.getElementById('dashboardContent').style.display = 'block';
+        }
+
+        function mostrarMensajeError(mensaje) {
+            document.getElementById('dashboardContent').innerHTML = `
+                <div class="alert alert-danger text-center p-5" style="margin: 50px auto; max-width: 600px;">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <h3>Error al cargar el dashboard</h3>
+                    <p class="mb-4">${mensaje}</p>
+                    <p>Por favor, verifica:</p>
+                    <ul class="text-start" style="max-width: 400px; margin: 20px auto;">
+                        <li>Que el servidor esté funcionando</li>
+                        <li>Que tengas permisos de administrador</li>
+                        <li>Que la conexión a la base de datos esté activa</li>
+                    </ul>
+                    <button onclick="loadDashboard()" class="btn btn-primary mt-3">
+                        <i class="fas fa-sync me-2"></i>Reintentar
+                    </button>
+                    <a href="/admin/dashboard" class="btn btn-secondary mt-3 ms-2">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                    </a>
+                </div>
+            `;
+            document.getElementById('dashboardContent').style.display = 'block';
+        }
+
+        function renderDashboard() {
+            renderKPIs();
+            renderCharts();
+            renderTables();
+            renderSegmentos();
+        }
+
+        function renderKPIs() {
+            const data = dashboardData;
+
+            // KPI 1: Total Clientes
+            document.getElementById('kpi-total-clientes').textContent = formatNumber(data.totalClientes);
+            document.getElementById('kpi-clientes-nuevos').textContent = data.clientesNuevosUltimoMes;
+
+            // KPI 2: Ingresos
+            document.getElementById('kpi-ingresos').textContent = formatCurrency(data.valorTotalVentas);
+            const crecimiento = data.crecimientoVentas || 0;
+            document.getElementById('kpi-crecimiento-valor').textContent = crecimiento.toFixed(1);
+            const crecimientoElem = document.getElementById('kpi-crecimiento');
+            if (crecimiento >= 0) {
+                crecimientoElem.classList.add('positive');
+                crecimientoElem.innerHTML = '<i class="fas fa-arrow-up"></i> <span>' + crecimiento.toFixed(1) + '</span>%';
+            } else {
+                crecimientoElem.classList.add('negative');
+                crecimientoElem.innerHTML = '<i class="fas fa-arrow-down"></i> <span>' + Math.abs(crecimiento).toFixed(1) + '</span>%';
+            }
+
+            // KPI 3: Campañas
+            document.getElementById('kpi-campanas-activas').textContent = data.campanasActivas;
+            document.getElementById('kpi-total-campanas').textContent = data.totalCampanas;
+
+            // KPI 4: ROI
+            const roi = data.roiPromedio || 0;
+            document.getElementById('kpi-roi').textContent = roi.toFixed(1) + '%';
+            const roiStatus = document.getElementById('kpi-roi-status');
+            if (roi > 200) {
+                roiStatus.innerHTML = '<i class="fas fa-check-circle"></i> Excelente';
+                roiStatus.className = 'kpi-change positive';
+            } else if (roi > 100) {
+                roiStatus.innerHTML = '<i class="fas fa-minus-circle"></i> Bueno';
+                roiStatus.className = 'kpi-change';
+            } else {
+                roiStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Bajo';
+                roiStatus.className = 'kpi-change negative';
+            }
+
+            // KPI 5: Tasa Apertura
+            const tasaApertura = data.tasaAperturaPromedio || 0;
+            document.getElementById('kpi-tasa-apertura').textContent = tasaApertura.toFixed(1) + '%';
+            updateMetricBadge('kpi-apertura-badge', tasaApertura, 30, 20);
+
+            // KPI 6: Tasa Clics
+            const tasaClics = data.tasaClicsPromedio || 0;
+            document.getElementById('kpi-tasa-clics').textContent = tasaClics.toFixed(1) + '%';
+            updateMetricBadge('kpi-clics-badge', tasaClics, 10, 5);
+
+            // KPI 7: Conversiones
+            document.getElementById('kpi-conversiones').textContent = data.conversionesEmail || 0;
+            const tasaConversion = data.tasaConversionPromedio || 0;
+            document.getElementById('kpi-tasa-conversion-valor').textContent = tasaConversion.toFixed(1);
+
+            // KPI 8: Ticket Promedio
+            document.getElementById('kpi-ticket-promedio').textContent = formatCurrency(data.ticketPromedio);
+        }
+
+        function updateMetricBadge(elementId, value, highThreshold, mediumThreshold) {
+            const badge = document.getElementById(elementId);
+            badge.classList.remove('high', 'medium', 'low');
+            
+            if (value >= highThreshold) {
+                badge.classList.add('high');
+                badge.innerHTML = '<i class="fas fa-check-circle"></i> Alta';
+            } else if (value >= mediumThreshold) {
+                badge.classList.add('medium');
+                badge.innerHTML = '<i class="fas fa-minus-circle"></i> Media';
+            } else {
+                badge.classList.add('low');
+                badge.innerHTML = '<i class="fas fa-times-circle"></i> Baja';
+            }
+        }
+
+        function renderCharts() {
+            renderVentasChart();
+            renderNivelesChart();
+            renderCampanasChart();
+            renderClientesChart();
+        }
+
+        function renderVentasChart() {
+            const ctx = document.getElementById('ventasChart').getContext('2d');
+            
+            if (charts.ventas) charts.ventas.destroy();
+
+            const tendencia = dashboardData.tendenciaVentas || [];
+            const labels = tendencia.map(t => t.fecha);
+            const valores = tendencia.map(t => t.valor);
+
+            charts.ventas = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ventas',
+                        data: valores,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Ventas: ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderNivelesChart() {
+            const ctx = document.getElementById('nivelesChart').getContext('2d');
+            
+            if (charts.niveles) charts.niveles.destroy();
+
+            const niveles = dashboardData.clientesPorNivel || {};
+            const labels = Object.keys(niveles);
+            const valores = Object.values(niveles);
+
+            charts.niveles = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: valores,
+                        backgroundColor: [
+                            '#cd7f32', // BRONCE
+                            '#C0C0C0', // PLATA
+                            '#FFD700', // ORO
+                            '#E5E4E2'  // PLATINUM
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 15, font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCampanasChart() {
+            const ctx = document.getElementById('campanasChart').getContext('2d');
+            
+            if (charts.campanas) charts.campanas.destroy();
+
+            const campanas = dashboardData.campanasPorEstado || {};
+            const labels = Object.keys(campanas);
+            const valores = Object.values(campanas);
+
+            charts.campanas = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Campañas',
+                        data: valores,
+                        backgroundColor: [
+                            '#95a5a6', // BORRADOR
+                            '#3498db', // PROGRAMADA
+                            '#27ae60', // ACTIVA
+                            '#f39c12', // PAUSADA
+                            '#e74c3c'  // FINALIZADA
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function renderClientesChart() {
+            const ctx = document.getElementById('clientesChart').getContext('2d');
+            
+            if (charts.clientes) charts.clientes.destroy();
+
+            const tendencia = dashboardData.tendenciaClientes || [];
+            const labels = tendencia.map(t => t.fecha);
+            const valores = tendencia.map(t => t.cantidad);
+
+            charts.clientes = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nuevos Clientes',
+                        data: valores,
+                        backgroundColor: '#11998e',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function renderTables() {
+            renderTopProductos();
+            renderTopVendedores();
+        }
+
+        function renderTopProductos() {
+            const tbody = document.getElementById('topProductosTable');
+            const productos = dashboardData.topProductos || [];
+            
+            tbody.innerHTML = '';
+            
+            productos.forEach((producto, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>#${index + 1}</strong></td>
+                    <td>
+                        <strong>${producto.nombreProducto}</strong><br>
+                        <small class="text-muted">${producto.categoria}</small>
+                    </td>
+                    <td><small>${producto.vendedorNombre}</small></td>
+                    <td><span class="badge bg-primary">${producto.cantidadVendida}</span></td>
+                    <td><strong>${formatCurrency(producto.ingresoTotal)}</strong></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (productos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay datos disponibles</td></tr>';
+            }
+        }
+
+        function renderTopVendedores() {
+            const tbody = document.getElementById('topVendedoresTable');
+            const vendedores = dashboardData.topVendedores || [];
+            
+            tbody.innerHTML = '';
+            
+            vendedores.forEach((vendedor, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>#${index + 1}</strong></td>
+                    <td>
+                        <strong>${vendedor.nombreNegocio}</strong><br>
+                        <small class="text-muted">${vendedor.nombreVendedor}</small>
+                    </td>
+                    <td><span class="badge bg-info">${vendedor.totalPedidos}</span></td>
+                    <td><span class="badge bg-success">${vendedor.clientesUnicos}</span></td>
+                    <td><strong>${formatCurrency(vendedor.ingresoTotal)}</strong></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if (vendedores.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No hay datos disponibles</td></tr>';
+            }
+        }
+
+        function renderSegmentos() {
+            const container = document.getElementById('segmentosContainer');
+            const segmentos = dashboardData.clientesPorSegmento || {};
+            
+            container.innerHTML = '';
+            
+            for (const [nombre, cantidad] of Object.entries(segmentos)) {
+                const item = document.createElement('div');
+                item.className = 'segmento-item';
+                item.innerHTML = `
+                    <span class="segmento-name">${nombre}</span>
+                    <span class="segmento-count">${cantidad}</span>
+                `;
+                container.appendChild(item);
+            }
+
+            if (Object.keys(segmentos).length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">No hay segmentos activos</p>';
+            }
+        }
+
+        function refreshDashboard() {
+            loadDashboard();
+        }
+
+        function exportarReporte() {
+            alert('Función de exportación en desarrollo');
+        }
+
+        function formatNumber(num) {
+            return Number(num).toLocaleString('es-CO');
+        }
+
+        function formatCurrency(num) {
+            return '$' + Number(num).toLocaleString('es-CO', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+    </script>
+
+</body>
+</html>

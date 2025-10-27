@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Segmentos de Marketing - UniEats</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .segmentos-container {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .segmento-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .segmento-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .segmento-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .cliente-count {
+            background: #FF6B35;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #FF6B35; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .acciones-automaticas {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .acciones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="segmentos-container">
+        <h1>Segmentos de Marketing</h1>
+
+        <div class="acciones-automaticas">
+            <h3>Crear Segmentos Automáticos</h3>
+            <div class="acciones-grid">
+                <button onclick="segmentarPorNivel('BRONCE')" class="btn btn-primary">Clientes Bronce</button>
+                <button onclick="segmentarPorNivel('PLATA')" class="btn btn-primary">Clientes Plata</button>
+                <button onclick="segmentarPorNivel('ORO')" class="btn btn-primary">Clientes Oro</button>
+                <button onclick="segmentarPorNivel('PLATINUM')" class="btn btn-primary">Clientes Platinum</button>
+                <button onclick="segmentarActivos()" class="btn btn-success">Clientes Activos</button>
+                <button onclick="segmentarInactivos()" class="btn btn-secondary">Clientes Inactivos</button>
+                <button onclick="segmentarFrecuentes()" class="btn btn-primary">Clientes Frecuentes</button>
+                <button onclick="segmentarVIP()" class="btn btn-primary">Clientes VIP</button>
+            </div>
+        </div>
+
+        <h2>Segmentos Existentes</h2>
+
+        <div th:if="${segmentos.empty}">
+            <p>No hay segmentos creados aún. Usa los botones de arriba para crear segmentos automáticos.</p>
+        </div>
+
+        <div th:each="segmento : ${segmentos}" class="segmento-card">
+            <div class="segmento-header">
+                <h3 th:text="${segmento.nombre}">Nombre del Segmento</h3>
+                <span class="cliente-count" th:text="${segmento.cantidadClientes} + ' clientes'">0 clientes</span>
+            </div>
+            
+            <p th:text="${segmento.descripcion}">Descripción del segmento</p>
+            
+            <div th:if="${segmento.fechaActualizacion != null}">
+                <small>Última actualización: 
+                    <span th:text="${#temporals.format(segmento.fechaActualizacion, 'dd/MM/yyyy HH:mm')}"></span>
+                </small>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <a th:href="@{/crm/segmentos/{id}(id=${segmento.id})}" class="btn btn-primary">Ver Detalle</a>
+                <button th:onclick="'desactivarSegmento(' + ${segmento.id} + ')'" 
+                        th:if="${segmento.activo}" 
+                        class="btn btn-secondary">Desactivar</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a th:href="@{/crm/dashboard}" class="btn btn-primary">← Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        function segmentarPorNivel(nivel) {
+            fetch('/crm/segmentos/api/segmentar-por-nivel?nivel=' + nivel, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`Segmento "${data.nombre}" creado con ${data.cantidadClientes} clientes`);
+                    location.reload();
+                });
+        }
+
+        function segmentarActivos() {
+            fetch('/crm/segmentos/api/segmentar-activos', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`Segmento "${data.nombre}" creado con ${data.cantidadClientes} clientes`);
+                    location.reload();
+                });
+        }
+
+        function segmentarInactivos() {
+            fetch('/crm/segmentos/api/segmentar-inactivos', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`Segmento "${data.nombre}" creado con ${data.cantidadClientes} clientes`);
+                    location.reload();
+                });
+        }
+
+        function segmentarFrecuentes() {
+            let minPedidos = prompt('¿Mínimo de pedidos?', '5');
+            if (minPedidos) {
+                fetch('/crm/segmentos/api/segmentar-frecuentes?minPedidos=' + minPedidos, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(`Segmento "${data.nombre}" creado con ${data.cantidadClientes} clientes`);
+                        location.reload();
+                    });
+            }
+        }
+
+        function segmentarVIP() {
+            let valorMinimo = prompt('¿Valor mínimo de compras?', '100000');
+            if (valorMinimo) {
+                fetch('/crm/segmentos/api/segmentar-vip?valorMinimo=' + valorMinimo, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(`Segmento "${data.nombre}" creado con ${data.cantidadClientes} clientes`);
+                        location.reload();
+                    });
+            }
+        }
+
+        function desactivarSegmento(id) {
+            if (confirm('¿Desea desactivar este segmento?')) {
+                fetch(`/crm/segmentos/api/${id}/desactivar`, { method: 'POST' })
+                    .then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>

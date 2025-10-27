@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #ffffff;
+            padding: 30px;
+            border: 1px solid #eee;
+        }
+        .alert-box {
+            background: #FFF3E0;
+            border: 2px solid #FF6B35;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-radius: 0 0 10px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛒 UniEats</h1>
+    </div>
+    
+    <div class="content">
+        <h2>Hola {nombre},</h2>
+        
+        <p>Notamos que dejaste algunos productos en tu carrito hace unos días.</p>
+        
+        <div class="alert-box">
+            <h3>⚠️ ¡No pierdas tus productos!</h3>
+            <p style="font-size: 18px; margin: 10px 0;">
+                Tu carrito: <strong>${valorCarrito}</strong>
+            </p>
+        </div>
+        
+        <p>Para que no te pierdas estos productos que te gustaron, te ofrecemos:</p>
+        
+        <ul>
+            <li>✅ <strong>5% de descuento adicional</strong> si completas tu compra hoy</li>
+            <li>🚚 Envío gratis en pedidos mayores a $30,000</li>
+            <li>⏰ Garantía de disponibilidad por 24 horas</li>
+        </ul>
+        
+        <center>
+            <a href="https://unieats.com/carrito" class="cta-button">
+                Completar Mi Compra Ahora
+            </a>
+        </center>
+        
+        <p><small>* Oferta válida solo por 48 horas desde la recepción de este correo.</small></p>
+        
+        <p>Si tienes alguna pregunta, estamos aquí para ayudarte.</p>
+        
+        <p>Saludos,<br>
+        <strong>El equipo de UniEats</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>Este correo fue enviado a {correo}</p>
+        <p>© 2025 UniEats Marketplace</p>
+    </div>
+</body>
+</html>

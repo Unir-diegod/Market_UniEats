@@ -346,6 +346,7 @@ function startVendorApp() {
                             <nav class="fixed bottom-0 left-0 right-0 w-full max-w-lg mx-auto bg-white/90 backdrop-blur-md border-t-2 border-slate-200 flex justify-around z-40 shadow-t-lg">
                                 <a href="#" class="nav-link" data-target="pedidos"><div class="flex flex-col items-center justify-center w-full pt-2 pb-1"><i class="fas fa-receipt nav-icon text-xl"></i><span class="text-xs mt-1 font-medium">Pedidos</span><span class="nav-indicator"></span></div></a>
                                 <a href="#" class="nav-link" data-target="productos"><div class="flex flex-col items-center justify-center w-full pt-2 pb-1"><i class="fas fa-hamburger nav-icon text-xl"></i><span class="text-xs mt-1 font-medium">Productos</span><span class="nav-indicator"></span></div></a>
+                                <a href="#" class="nav-link" data-target="analytics"><div class="flex flex-col items-center justify-center w-full pt-2 pb-1"><i class="fas fa-chart-line nav-icon text-xl"></i><span class="text-xs mt-1 font-medium">Analytics</span><span class="nav-indicator"></span></div></a>
                                 <a href="#" class="nav-link" data-target="promociones"><div class="flex flex-col items-center justify-center w-full pt-2 pb-1"><i class="fas fa-fire nav-icon text-xl"></i><span class="text-xs mt-1 font-medium">Promociones</span><span class="nav-indicator"></span></div></a>
                                 <a href="#" class="nav-link" data-target="perfil"><div class="flex flex-col items-center justify-center w-full pt-2 pb-1"><i class="fas fa-store nav-icon text-xl"></i><span class="text-xs mt-1 font-medium">Mi Tienda</span><span class="nav-indicator"></span></div></a>
                             </nav>
@@ -363,6 +364,7 @@ function startVendorApp() {
                     mainContent.innerHTML = `
                         ${App.components.Pedidos.render(data)}
                         ${App.components.Productos.render(data)}
+                        ${App.components.Analytics.render(data)}
                         ${App.components.Promociones.render(data)}
                         ${App.components.Perfil.render(data)}
                     `;
@@ -1771,6 +1773,24 @@ function startVendorApp() {
                             btn.disabled = false;
                         }
                     });
+                }
+            },
+
+            Analytics: {
+                render(data) {
+                    // Este contenido será generado dinámicamente por powerbi.js
+                    return `<div id="view-analytics" class="main-view"><div class="flex items-center justify-center h-screen"><i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i></div></div>`;
+                },
+                async init(data) {
+                    // Cargar el contenido de Analytics usando Power BI Manager
+                    if (window.powerBIManager) {
+                        const analyticsView = document.getElementById('view-analytics');
+                        if (analyticsView) {
+                            analyticsView.innerHTML = await window.powerBIManager.renderVistaAnalytics();
+                        }
+                    } else {
+                        console.error('Power BI Manager no está cargado');
+                    }
                 }
             },
 

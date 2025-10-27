@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            background: #ffffff;
+            padding: 30px;
+            border: 1px solid #eee;
+        }
+        .content h2 {
+            color: #FF6B35;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #FF6B35;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            background: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-radius: 0 0 10px 10px;
+        }
+        .puntos-box {
+            background: #FFF3E0;
+            border-left: 4px solid #FF6B35;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍔 UniEats</h1>
+        <p>Tu marketplace universitario favorito</p>
+    </div>
+    
+    <div class="content">
+        <h2>¡Hola {nombre}! 👋</h2>
+        
+        <p>Nos complace informarte que eres parte de nuestro programa de fidelidad <strong>nivel {nivel}</strong>.</p>
+        
+        <div class="puntos-box">
+            <h3>💎 Tus Puntos de Fidelidad</h3>
+            <p style="font-size: 24px; margin: 0;"><strong>{puntos} puntos</strong></p>
+        </div>
+        
+        <p>Como cliente especial, queremos recompensarte con:</p>
+        
+        <ul>
+            <li>✨ Descuento del 10% en tu próxima compra</li>
+            <li>🚀 Envío prioritario gratis</li>
+            <li>🎁 Acceso anticipado a nuevas promociones</li>
+        </ul>
+        
+        <center>
+            <a href="https://unieats.com/promociones" class="cta-button">
+                Ver Promociones Exclusivas
+            </a>
+        </center>
+        
+        <p>No dejes pasar esta oportunidad. ¡Aprovecha tu descuento antes de que expire!</p>
+        
+        <p>Saludos cordiales,<br>
+        <strong>El equipo de UniEats</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>Este correo fue enviado a {correo}</p>
+        <p>Si no deseas recibir más correos de marketing, puedes <a href="https://unieats.com/unsubscribe">darte de baja aquí</a>.</p>
+        <p>© 2025 UniEats Marketplace. Todos los derechos reservados.</p>
+    </div>
+</body>
+</html>
