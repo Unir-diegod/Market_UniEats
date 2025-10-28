@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Campañas de Marketing - UniEats</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .campanas-container {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .campana-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .campana-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .campana-header h3 {
+            margin: 0;
+            color: #333;
+        }
+        .estado-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .estado-ACTIVA { background: #28a745; color: white; }
+        .estado-BORRADOR { background: #6c757d; color: white; }
+        .estado-PAUSADA { background: #ffc107; color: #333; }
+        .estado-FINALIZADA { background: #17a2b8; color: white; }
+        .metricas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .metrica {
+            text-align: center;
+        }
+        .metrica-valor {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+        .metrica-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #FF6B35; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        .btn-danger { background: #dc3545; color: white; }
+        .acciones {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="campanas-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>Campañas de Marketing</h1>
+            <a th:href="@{/crm/campanas/nueva}" class="btn btn-primary">+ Nueva Campaña</a>
+        </div>
+
+        <div th:if="${campanas.empty}">
+            <p>No hay campañas creadas aún.</p>
+        </div>
+
+        <div th:each="campana : ${campanas}" class="campana-card">
+            <div class="campana-header">
+                <h3 th:text="${campana.nombre}">Nombre de Campaña</h3>
+                <span class="estado-badge" th:classappend="'estado-' + ${campana.estado}" 
+                      th:text="${campana.estado}">ACTIVA</span>
+            </div>
+            
+            <p th:text="${campana.descripcion}">Descripción de la campaña</p>
+            
+            <div>
+                <strong>Tipo:</strong> <span th:text="${campana.tipo}"></span> |
+                <strong>Segmento:</strong> <span th:text="${campana.segmentoNombre}"></span>
+            </div>
+            
+            <div th:if="${campana.fechaInicio != null}">
+                <strong>Inicio:</strong> 
+                <span th:text="${#temporals.format(campana.fechaInicio, 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+
+            <div class="metricas">
+                <div class="metrica">
+                    <div class="metrica-valor" th:text="${campana.enviosTotales}">0</div>
+                    <div class="metrica-label">Envíos</div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-valor" th:text="${campana.tasaApertura != null ? #numbers.formatDecimal(campana.tasaApertura, 1, 'POINT', 1, 'COMMA') + '%' : '0%'}">0%</div>
+                    <div class="metrica-label">Tasa Apertura</div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-valor" th:text="${campana.tasaClics != null ? #numbers.formatDecimal(campana.tasaClics, 1, 'POINT', 1, 'COMMA') + '%' : '0%'}">0%</div>
+                    <div class="metrica-label">Tasa Clics</div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-valor" th:text="${campana.conversiones}">0</div>
+                    <div class="metrica-label">Conversiones</div>
+                </div>
+                <div class="metrica">
+                    <div class="metrica-valor" th:text="${campana.roi != null ? #numbers.formatDecimal(campana.roi, 1, 'POINT', 1, 'COMMA') + '%' : '0%'}">0%</div>
+                    <div class="metrica-label">ROI</div>
+                </div>
+            </div>
+
+            <div class="acciones">
+                <a th:href="@{/crm/campanas/{id}(id=${campana.id})}" class="btn btn-primary">Ver Detalle</a>
+                <button th:if="${campana.estado == 'BORRADOR'}" 
+                        th:onclick="'activarCampana(' + ${campana.id} + ')'" 
+                        class="btn btn-success">Activar</button>
+                <button th:if="${campana.estado == 'ACTIVA'}" 
+                        th:onclick="'pausarCampana(' + ${campana.id} + ')'" 
+                        class="btn btn-warning">Pausar</button>
+                <button th:if="${campana.estado == 'PAUSADA'}" 
+                        th:onclick="'activarCampana(' + ${campana.id} + ')'" 
+                        class="btn btn-success">Reanudar</button>
+                <button th:if="${campana.estado != 'FINALIZADA'}" 
+                        th:onclick="'finalizarCampana(' + ${campana.id} + ')'" 
+                        class="btn btn-danger">Finalizar</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a th:href="@{/crm/dashboard}" class="btn btn-primary">← Volver al Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        function activarCampana(id) {
+            if (confirm('¿Desea activar esta campaña?')) {
+                fetch(`/crm/campanas/api/${id}/activar`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(() => location.reload());
+            }
+        }
+
+        function pausarCampana(id) {
+            if (confirm('¿Desea pausar esta campaña?')) {
+                fetch(`/crm/campanas/api/${id}/pausar`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(() => location.reload());
+            }
+        }
+
+        function finalizarCampana(id) {
+            if (confirm('¿Desea finalizar esta campaña? Esta acción no se puede deshacer.')) {
+                fetch(`/crm/campanas/api/${id}/finalizar`, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>

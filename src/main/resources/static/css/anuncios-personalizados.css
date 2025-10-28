@@ -1,0 +1,376 @@
+/**
+ * Estilos para el sistema de anuncios personalizados
+ * Uni-Eats Marketplace
+ */
+
+/* ========== VARIABLES CSS ========== */
+:root {
+    --anuncio-primary: #667eea;
+    --anuncio-secondary: #764ba2;
+    --anuncio-success: #10b981;
+    --anuncio-warning: #f59e0b;
+    --anuncio-danger: #ef4444;
+    --anuncio-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    --anuncio-hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    --anuncio-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========== CONTENEDOR PRINCIPAL DE ANUNCIOS ========== */
+.anuncios-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ========== BANNER CAROUSEL ========== */
+.banner-carousel {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--anuncio-shadow);
+    margin-bottom: 30px;
+}
+
+.banner-anuncio {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: none;
+    transition: opacity 0.5s ease-in-out;
+    cursor: pointer;
+}
+
+.banner-anuncio.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 30px;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 100%);
+}
+
+.banner-anuncio:hover {
+    transform: scale(1.02);
+    transition: var(--anuncio-transition);
+}
+
+.banner-content {
+    color: white;
+    z-index: 2;
+}
+
+.banner-content h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.banner-content p {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Indicadores de carousel */
+.carousel-indicators {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+}
+
+.carousel-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: var(--anuncio-transition);
+}
+
+.carousel-indicator.active {
+    background: white;
+    width: 30px;
+    border-radius: 5px;
+}
+
+/* ========== BADGES DE PERSONALIZACIÓN ========== */
+.badge-personalizado {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
+.badge-favorito {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.badge-comprado {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.badge-nuevo {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.badge-promocion {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+@keyframes pulse-badge {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* ========== GRID DE PRODUCTOS RECOMENDADOS ========== */
+.productos-recomendados {
+    margin: 40px 0;
+}
+
+.productos-recomendados h3 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.producto-recomendado {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--anuncio-shadow);
+    transition: var(--anuncio-transition);
+    cursor: pointer;
+    position: relative;
+}
+
+.producto-recomendado:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--anuncio-hover-shadow);
+}
+
+.producto-imagen {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.producto-info {
+    padding: 20px;
+}
+
+.producto-info h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.producto-info p {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.producto-precio {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--anuncio-primary);
+    margin: 10px 0;
+}
+
+.producto-vendedor {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ========== VENDEDORES DESTACADOS ========== */
+.vendedores-destacados {
+    margin: 40px 0;
+}
+
+.vendedores-destacados h3 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+.vendedores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.vendedor-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: var(--anuncio-shadow);
+    transition: var(--anuncio-transition);
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.vendedor-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--anuncio-hover-shadow);
+    border-color: var(--anuncio-primary);
+}
+
+.vendedor-card.favorito {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+.vendedor-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.vendedor-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.vendedor-info h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 5px;
+}
+
+.vendedor-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--anuncio-primary);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+/* ========== LOADING SPINNER ========== */
+.anuncios-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f4f6;
+    border-top-color: var(--anuncio-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+    .banner-carousel {
+        height: 200px;
+    }
+    
+    .banner-content h2 {
+        font-size: 1.5rem;
+    }
+    
+    .banner-content p {
+        font-size: 0.9rem;
+    }
+    
+    .productos-grid,
+    .vendedores-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .badge-personalizado {
+        font-size: 0.75rem;
+        padding: 4px 12px;
+    }
+}
+
+/* ========== ANIMACIONES DE ENTRADA ========== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.fade-in-up-delay-1 { animation-delay: 0.1s; }
+.fade-in-up-delay-2 { animation-delay: 0.2s; }
+.fade-in-up-delay-3 { animation-delay: 0.3s; }
