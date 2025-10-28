@@ -654,6 +654,7 @@
                 document.getElementById('dashboardContent').style.display = 'none';
 
                 const response = await fetch('/crm/dashboard/api/metricas-completas');
+<<<<<<< HEAD
                 
                 console.log('Response status:', response.status);
                 
@@ -671,6 +672,11 @@
                     mostrarMensajeSinDatos();
                     return;
                 }
+=======
+                if (!response.ok) throw new Error('Error al cargar datos');
+
+                dashboardData = await response.json();
+>>>>>>> f5eb169d2fe355418d97899d3ba5518cce1e3c6d
                 
                 renderDashboard();
                 
@@ -678,6 +684,7 @@
                 document.getElementById('dashboardContent').style.display = 'block';
 
             } catch (error) {
+<<<<<<< HEAD
                 console.error('Error completo:', error);
                 document.getElementById('loadingSpinner').style.display = 'none';
                 mostrarMensajeError(error.message);
@@ -729,6 +736,13 @@
             document.getElementById('dashboardContent').style.display = 'block';
         }
 
+=======
+                console.error('Error:', error);
+                alert('Error al cargar el dashboard: ' + error.message);
+            }
+        }
+
+>>>>>>> f5eb169d2fe355418d97899d3ba5518cce1e3c6d
         function renderDashboard() {
             renderKPIs();
             renderCharts();
