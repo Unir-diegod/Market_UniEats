@@ -2,6 +2,7 @@ package com.remington.unieats.marketplace.service;
 
 import com.remington.unieats.marketplace.dto.DashboardStatsDTO;
 import com.remington.unieats.marketplace.dto.TiendaDetallesDTO;
+import com.remington.unieats.marketplace.dto.TiendaPopularDTO;
 import com.remington.unieats.marketplace.dto.UsuarioAdminDTO;
 import com.remington.unieats.marketplace.model.entity.Tienda;
 import com.remington.unieats.marketplace.model.entity.Usuario;
@@ -23,4 +24,5 @@ public interface AdminService {
     void rechazarOInhabilitarTienda(Integer tiendaId);
     void reactivarTienda(Integer tiendaId);
     Optional<TiendaDetallesDTO> buscarTiendaDetallesPorId(Integer id);
+    List<TiendaPopularDTO> obtenerTiendasMasPopulares(int limite);
 }

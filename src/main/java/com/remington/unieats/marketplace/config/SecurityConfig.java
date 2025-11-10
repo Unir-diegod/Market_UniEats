@@ -40,7 +40,8 @@ public class SecurityConfig {
                     "/api/ml-monitor/test-minimo/**", // ✅ Permitir endpoint de test mínimo
                     "/api/ml-monitor/recomendaciones/**", // ✅ Permitir endpoint de recomendaciones ML
                     "/error/**", // Permitir páginas de error
-                    "/custom-logout" // Permitir logout personalizado
+                    "/custom-logout", // Permitir logout personalizado
+                    "/logout-success" // ✅ Permitir página de logout exitoso
                 ).permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN_PLATAFORMA")
                 .requestMatchers("/vendedor/**", "/api/vendedor/**").hasRole("VENDEDOR")
@@ -57,7 +58,7 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/logout-success")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()
@@ -65,7 +66,7 @@ public class SecurityConfig {
 
         // ↓↓↓ CONFIGURACIÓN CSRF PARA SOLUCIONAR ERROR 403 EN LOGOUT ↓↓↓
         http.csrf(csrf -> csrf
-            .ignoringRequestMatchers("/api/**", "/logout", "/custom-logout", "/login") // Deshabilita CSRF para API, logout y login
+            .ignoringRequestMatchers("/api/**", "/custom-logout", "/login") // Deshabilita CSRF para API y login (NO para /logout)
         );
 
         return http.build();

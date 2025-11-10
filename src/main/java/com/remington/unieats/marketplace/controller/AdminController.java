@@ -41,6 +41,9 @@ public class AdminController {
         model.addAttribute("tiendasPendientes", tiendasPorEstado.getOrDefault(EstadoTienda.PENDIENTE, List.of()));
         model.addAttribute("tiendasActivas", tiendasPorEstado.getOrDefault(EstadoTienda.ACTIVA, List.of()));
         model.addAttribute("tiendasInactivas", tiendasPorEstado.getOrDefault(EstadoTienda.INACTIVA, List.of()));
+        
+        // Obtener tiendas más populares (top 5)
+        model.addAttribute("tiendasPopulares", adminService.obtenerTiendasMasPopulares(5));
 
         return "admin/admin_dashboard";
     }

@@ -46,6 +46,11 @@ public class AppController {
         return "login";
     }
 
+    @GetMapping("/logout-success")
+    public String mostrarPaginaLogoutSuccess() {
+        return "logout_success";
+    }
+
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {
         model.addAttribute("estudiante", new EstudianteRegistroDTO());
@@ -188,12 +193,20 @@ public class AppController {
     }
     
     @PostMapping("/custom-logout")
-    public String customLogout(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public String customLogout(HttpServletRequest request) {
         // Invalidar la sesión manualmente
         if (request.getSession(false) != null) {
             request.getSession().invalidate();
         }
-        redirectAttributes.addFlashAttribute("success", "Has cerrado sesión exitosamente.");
-        return "redirect:/login?logout";
+        return "redirect:/logout-success";
+    }
+    
+    @GetMapping("/custom-logout")
+    public String customLogoutGet(HttpServletRequest request) {
+        // Invalidar la sesión manualmente
+        if (request.getSession(false) != null) {
+            request.getSession().invalidate();
+        }
+        return "redirect:/logout-success";
     }
 }

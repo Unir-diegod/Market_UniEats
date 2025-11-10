@@ -41,8 +41,8 @@
             <a href="#" class="main-nav-link flex-1 md:flex-none flex flex-col items-center justify-center p-2 md:flex-row md:justify-start md:px-6 md:py-4 my-1 text-slate-500 hover:bg-slate-100 rounded-lg mx-1 transition-all duration-200" data-target="dashboard">
                 <i class="fas fa-chart-pie nav-icon text-xl text-slate-400 lg:mr-4 transition-transform"></i><span class="text-xs lg:text-base font-medium nav-text">Dashboard</span>
             </a>
-            <a href="/crm/dashboard" class="main-nav-link flex-1 md:flex-none flex flex-col items-center justify-center p-2 md:flex-row md:justify-start md:px-6 md:py-4 my-1 text-slate-500 hover:bg-slate-100 rounded-lg mx-1 transition-all duration-200">
-                <i class="fas fa-chart-line nav-icon text-xl text-slate-400 lg:mr-4 transition-transform"></i><span class="text-xs lg:text-base font-medium nav-text">CRM Analytics</span>
+            <a href="/crm/dashboard" data-external="true" class="main-nav-link flex-1 md:flex-none flex flex-col items-center justify-center p-2 md:flex-row md:justify-start md:px-6 md:py-4 my-1 text-slate-500 hover:bg-slate-100 rounded-lg mx-1 transition-all duration-200">
+                <i class="fas fa-chart-line nav-icon text-xl text-slate-400 lg:mr-4 transition-transform"></i><span class="text-xs lg:text-base font-medium nav-text">Análisis CRM</span>
             </a>
             <a href="#" class="main-nav-link flex-1 md:flex-none flex flex-col items-center justify-center p-2 md:flex-row md:justify-start md:px-6 md:py-4 my-1 text-slate-500 hover:bg-slate-100 rounded-lg mx-1 transition-all duration-200" data-target="gestion">
                 <i class="fas fa-cogs nav-icon text-xl text-slate-400 lg:mr-4 transition-transform"></i><span class="text-xs lg:text-base font-medium nav-text">Gestión</span>
@@ -52,7 +52,10 @@
             </a>
             <div class="hidden md:block md:mt-auto">
                  <div class="relative px-6">
-                    <form th:action="@{/logout}" method="post"><button type="submit" class="w-full flex items-center space-x-3 p-2 rounded-xl hover:bg-red-50 text-red-500 transition-all duration-200"><i class="fas fa-sign-out-alt text-lg lg:mr-4"></i><span class="hidden lg:inline text-base font-medium">Salir</span></button></form>
+                    <a href="/custom-logout" class="w-full flex items-center space-x-3 p-2 rounded-xl hover:bg-red-50 text-red-500 transition-all duration-200 cursor-pointer">
+                        <i class="fas fa-sign-out-alt text-lg lg:mr-4"></i>
+                        <span class="hidden lg:inline text-base font-medium">Salir</span>
+                    </a>
                 </div>
             </div>
         </nav>
@@ -78,10 +81,65 @@
                 </div>
 
                 <div class="flex items-center space-x-2 sm:space-x-4">
-                    <button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-full transition-colors relative">
-                        <i class="fas fa-bell text-lg"></i>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
+                    <div class="relative">
+                        <button id="notifications-button" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-slate-100 rounded-full transition-colors relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span id="notifications-badge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+
+                        <!-- Panel de Notificaciones -->
+                        <div id="notifications-panel" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border z-40 origin-top-right max-h-96 overflow-hidden flex flex-col">
+                            <div class="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-slate-800">Notificaciones</h3>
+                                    <button id="mark-all-read" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold">Marcar todas como leídas</button>
+                                </div>
+                            </div>
+                            <div id="notifications-list" class="overflow-y-auto flex-grow">
+                                <!-- Notificaciones de ejemplo -->
+                                <div class="notification-item unread p-4 hover:bg-slate-50 border-b cursor-pointer transition-colors">
+                                    <div class="flex gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-store text-green-600"></i>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <p class="text-sm font-semibold text-slate-800">Nueva tienda pendiente de aprobación</p>
+                                            <p class="text-xs text-slate-500 mt-1">Tienda "Delicias Uni" solicita aprobación</p>
+                                            <p class="text-xs text-slate-400 mt-1">Hace 5 minutos</p>
+                                        </div>
+                                        <div class="w-2 h-2 rounded-full bg-indigo-500 mt-2 flex-shrink-0"></div>
+                                    </div>
+                                </div>
+                                <div class="notification-item p-4 hover:bg-slate-50 border-b cursor-pointer transition-colors">
+                                    <div class="flex gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-user-plus text-blue-600"></i>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <p class="text-sm font-semibold text-slate-700">Nuevo usuario registrado</p>
+                                            <p class="text-xs text-slate-500 mt-1">Juan Pérez se registró como estudiante</p>
+                                            <p class="text-xs text-slate-400 mt-1">Hace 1 hora</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="notification-item p-4 hover:bg-slate-50 border-b cursor-pointer transition-colors">
+                                    <div class="flex gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <p class="text-sm font-semibold text-slate-700">Reporte de problema</p>
+                                            <p class="text-xs text-slate-500 mt-1">Error en proceso de pago reportado</p>
+                                            <p class="text-xs text-slate-400 mt-1">Hace 2 horas</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-3 border-t bg-slate-50">
+                                <a href="#" class="text-center block text-sm text-indigo-600 hover:text-indigo-800 font-semibold">Ver todas las notificaciones</a>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="relative">
                         <button id="user-menu-button" class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-inner overflow-hidden">
@@ -98,13 +156,9 @@
                                 <a href="#" class="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"><i class="fas fa-cog w-6 mr-2 text-slate-400"></i>Configuración</a>
                             </div>
                             <div class="p-2">
-                                <form th:action="@{/logout}" method="post">
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                    
-                                    <button type="submit" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
-                                        <i class="fas fa-sign-out-alt w-6 mr-2"></i>Cerrar Sesión
-                                    </button>
-                                </form>
+                                <a href="/custom-logout" class="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg cursor-pointer">
+                                    <i class="fas fa-sign-out-alt w-6 mr-2"></i>Cerrar Sesión
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -123,6 +177,79 @@
                     <p id="dashboard-date" class="text-slate-500 mt-1">Aquí tienes el resumen de la plataforma.</p>
                 </div>
 
+                <!-- Métricas Rápidas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Total Usuarios -->
+                    <div class="bg-white rounded-xl shadow-lg p-4 border-l-4 border-indigo-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Usuarios</p>
+                                <p class="text-2xl font-bold text-slate-800 mt-1" th:text="${stats.totalUsuarios}">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-users text-indigo-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-xs">
+                            <span class="text-green-600 font-semibold">↑ 12%</span>
+                            <span class="text-slate-500 ml-1">vs mes anterior</span>
+                        </div>
+                    </div>
+
+                    <!-- Tiendas Activas -->
+                    <div class="bg-white rounded-xl shadow-lg p-4 border-l-4 border-blue-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Tiendas Activas</p>
+                                <p class="text-2xl font-bold text-slate-800 mt-1" th:text="${#lists.size(tiendasActivas)}">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-store text-blue-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-xs">
+                            <span class="text-green-600 font-semibold">↑ 8%</span>
+                            <span class="text-slate-500 ml-1">esta semana</span>
+                        </div>
+                    </div>
+
+                    <!-- Tiendas Pendientes -->
+                    <div class="bg-white rounded-xl shadow-lg p-4 border-l-4 border-amber-500 hover:shadow-xl transition-shadow cursor-pointer switch-view-from-dashboard" data-target="gestion" data-view="view-gestion-tiendas" data-title="Gestión de Tiendas">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Pendientes</p>
+                                <p class="text-2xl font-bold text-slate-800 mt-1" th:text="${#lists.size(tiendasPendientes)}">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center relative">
+                                <i class="fas fa-clock text-amber-600 text-xl"></i>
+                                <span th:if="${#lists.size(tiendasPendientes) > 0}" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-xs font-bold" th:text="${#lists.size(tiendasPendientes)}">0</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-xs">
+                            <span class="text-amber-600 font-semibold">⚠ Requieren atención</span>
+                        </div>
+                    </div>
+
+                    <!-- Estudiantes -->
+                    <div class="bg-white rounded-xl shadow-lg p-4 border-l-4 border-green-500 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Estudiantes</p>
+                                <p class="text-2xl font-bold text-slate-800 mt-1" th:text="${stats.totalEstudiantes}">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-graduate text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 flex items-center text-xs">
+                            <span class="text-green-600 font-semibold">↑ 15%</span>
+                            <span class="text-slate-500 ml-1">últimos 7 días</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     <div class="lg:col-span-2 space-y-6">
@@ -138,6 +265,77 @@
                         <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
                             <h3 class="text-lg font-bold text-slate-800 mb-4">Volumen de Pedidos (Últimos 15 días)</h3>
                             <div id="orders-chart" class="w-full h-64 md:h-80"></div>
+                        </div>
+
+                        <!-- Nueva Gráfica: Distribución de Usuarios por Rol -->
+                        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                            <h3 class="text-lg font-bold text-slate-800 mb-4">Distribución de Usuarios por Rol</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                                <div id="users-donut-chart" class="w-full h-64"></div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                            <span class="text-sm font-medium text-slate-700">Estudiantes</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-slate-800" th:text="${stats.totalEstudiantes}">0</p>
+                                            <p class="text-xs text-slate-500" th:text="${stats.totalUsuarios > 0 ? #numbers.formatDecimal(stats.totalEstudiantes * 100.0 / stats.totalUsuarios, 1, 1) + '%' : '0%'}">0%</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                                            <span class="text-sm font-medium text-slate-700">Vendedores</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-slate-800" th:text="${stats.totalVendedores}">0</p>
+                                            <p class="text-xs text-slate-500" th:text="${stats.totalUsuarios > 0 ? #numbers.formatDecimal(stats.totalVendedores * 100.0 / stats.totalUsuarios, 1, 1) + '%' : '0%'}">0%</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                            <span class="text-sm font-medium text-slate-700">Administradores</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-slate-800" th:text="${stats.totalUsuarios - stats.totalEstudiantes - stats.totalVendedores}">0</p>
+                                            <p class="text-xs text-slate-500" th:text="${stats.totalUsuarios > 0 ? #numbers.formatDecimal((stats.totalUsuarios - stats.totalEstudiantes - stats.totalVendedores) * 100.0 / stats.totalUsuarios, 1, 1) + '%' : '0%'}">0%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nueva Gráfica: Top Tiendas Más Visitadas -->
+                        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-lg font-bold text-slate-800">Tiendas con Más Pedidos</h3>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
+                                    <i class="fas fa-fire mr-1"></i>Popular
+                                </span>
+                            </div>
+                            
+                            <!-- Medallas superiores -->
+                            <div class="mb-4">
+                                <div class="grid grid-cols-3 gap-3 text-center">
+                                    <div class="p-3 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg border border-yellow-200">
+                                        <p class="text-3xl mb-1">🥇</p>
+                                        <p class="text-xs font-bold text-amber-700">1er Lugar</p>
+                                    </div>
+                                    <div class="p-3 bg-gradient-to-br from-slate-50 to-gray-100 rounded-lg border border-slate-200">
+                                        <p class="text-3xl mb-1">🥈</p>
+                                        <p class="text-xs font-bold text-slate-600">2do Lugar</p>
+                                    </div>
+                                    <div class="p-3 bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg border border-orange-200">
+                                        <p class="text-3xl mb-1">🥉</p>
+                                        <p class="text-xs font-bold text-orange-700">3er Lugar</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Gráfica de barras -->
+                            <div id="top-stores-chart" class="w-full" style="height: 320px;"></div>
                         </div>
                     </div>
 
@@ -162,6 +360,71 @@
                             </div>
                         </div>
 
+                        <!-- Actividad Reciente en Tiempo Real -->
+                        <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Actividad Reciente</h3>
+                                <span class="flex items-center gap-1 text-xs font-semibold text-green-600">
+                                    <span class="relative flex h-2 w-2">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                    </span>
+                                    EN VIVO
+                                </span>
+                            </div>
+                            <div id="activity-feed" class="space-y-3 max-h-64 overflow-y-auto">
+                                <!-- Usuarios Registrados -->
+                                <div th:each="usuario, iterStat : ${usuarios}" th:if="${iterStat.index < 5}" class="activity-item flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                        <i class="fas fa-user-plus text-xs"></i>
+                                    </div>
+                                    <div class="flex-grow min-w-0">
+                                        <p class="text-sm font-medium text-slate-700 truncate">
+                                            <span class="font-bold" th:text="${usuario.nombre + ' ' + usuario.apellido}">Usuario</span> se registró
+                                        </p>
+                                        <p class="text-xs text-slate-500">
+                                            <span th:each="rol : ${usuario.roles}" th:text="${#strings.capitalize(rol.nombre.toLowerCase())}" class="inline-block px-1.5 py-0.5 bg-green-100 text-green-700 rounded mr-1"></span>
+                                        </p>
+                                    </div>
+                                    <span class="text-xs text-slate-400 whitespace-nowrap">Reciente</span>
+                                </div>
+                                
+                                <!-- Tiendas Pendientes -->
+                                <div th:each="tienda, iterStat : ${tiendasPendientes}" th:if="${iterStat.index < 3}" class="activity-item flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                        <i class="fas fa-store text-xs"></i>
+                                    </div>
+                                    <div class="flex-grow min-w-0">
+                                        <p class="text-sm font-medium text-slate-700 truncate">
+                                            <span class="font-bold" th:text="${tienda.nombre}">Tienda</span> solicita aprobación
+                                        </p>
+                                        <p class="text-xs text-slate-500 truncate">Por <span th:text="${tienda.vendedor.nombre}"></span></p>
+                                    </div>
+                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Pendiente</span>
+                                </div>
+                                
+                                <!-- Tiendas Activas -->
+                                <div th:each="tienda, iterStat : ${tiendasActivas}" th:if="${iterStat.index < 2}" class="activity-item flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                        <i class="fas fa-check-circle text-xs"></i>
+                                    </div>
+                                    <div class="flex-grow min-w-0">
+                                        <p class="text-sm font-medium text-slate-700 truncate">
+                                            <span class="font-bold" th:text="${tienda.nombre}">Tienda</span> está activa
+                                        </p>
+                                        <p class="text-xs text-slate-500">Vendiendo productos</p>
+                                    </div>
+                                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activa</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t">
+                                <a href="#" class="switch-view-from-dashboard text-sm text-indigo-600 hover:text-indigo-800 font-semibold flex items-center justify-center gap-1" data-target="reportes" data-title="Reportes">
+                                    Ver historial completo
+                                    <i class="fas fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+
                         <div class="bg-white p-4 md:p-6 rounded-xl shadow-lg">
                             <h3 class="text-lg font-bold text-slate-800 mb-4">Atajos Rápidos</h3>
                             <div class="space-y-2">
@@ -173,7 +436,7 @@
                                     <i class="fas fa-store w-6 mr-3 text-slate-400"></i>
                                     <span class="font-semibold text-slate-700">Gestionar Tiendas</span>
                                 </a>
-                                <a href="#" class="switch-view-from-dashboard w-full flex items-center p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors" data-target="reportes">
+                                <a href="#" class="switch-view-from-dashboard w-full flex items-center p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors" data-target="reportes" data-title="Reportes">
                                     <i class="fas fa-file-alt w-6 mr-3 text-slate-400"></i>
                                     <span class="font-semibold text-slate-700">Ver Reportes</span>
                                 </a>
@@ -202,7 +465,7 @@
         </div>
     </div>
 
-    <div id="user-list" class="mt-4 space-y-3">
+    <div id="user-list" class="mt-4 space-y-3 pb-24">
         <div th:each="usuario : ${usuarios}" 
              class="user-card bg-white p-4 rounded-xl shadow-lg flex items-center gap-4 transition-transform active:scale-[0.98]"
              th:data-id="${usuario.id}"
@@ -227,10 +490,6 @@
             <div class="flex-shrink-0 w-2.5 h-2.5 rounded-full" th:classappend="${usuario.isActivo() ? 'bg-green-500' : 'bg-red-500'}"></div>
         </div>
     </div>
-
-    <button id="open-modal-btn" class="fixed bottom-20 md:bottom-8 right-4 md:right-8 w-14 h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-2xl flex items-center justify-center z-30 transition-transform hover:scale-110">
-        <i class="fas fa-plus text-xl"></i>
-    </button>
 
 </div>
 
@@ -357,45 +616,304 @@
     </div>
 </div>
 
+                <!-- ====================================================================== -->
+                <!-- == VISTA #D: REPORTES                                               == -->
+                <!-- ====================================================================== -->
+                <div id="view-reportes" class="main-view hidden animate-enter">
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Resumen General -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Resumen General</h3>
+                                <i class="fas fa-chart-bar text-indigo-500 text-2xl"></i>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                    <span class="text-sm font-medium text-slate-600">Total Usuarios</span>
+                                    <span class="text-xl font-bold text-slate-800" th:text="${stats.totalUsuarios}">0</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                    <span class="text-sm font-medium text-slate-600">Total Tiendas</span>
+                                    <span class="text-xl font-bold text-slate-800" th:text="${stats.totalTiendas}">0</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                    <span class="text-sm font-medium text-slate-600">Estudiantes</span>
+                                    <span class="text-xl font-bold text-green-600" th:text="${stats.totalEstudiantes}">0</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                                    <span class="text-sm font-medium text-slate-600">Vendedores</span>
+                                    <span class="text-xl font-bold text-blue-600" th:text="${stats.totalVendedores}">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones Rápidas -->
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Acciones Rápidas</h3>
+                                <i class="fas fa-bolt text-amber-500 text-2xl"></i>
+                            </div>
+                            <div class="space-y-3">
+                                <button class="w-full flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 rounded-lg transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-download text-white"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-slate-800">Exportar Usuarios</p>
+                                            <p class="text-xs text-slate-500">Descargar lista completa</p>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-slate-400 group-hover:text-indigo-600 transition-colors"></i>
+                                </button>
+
+                                <button class="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 rounded-lg transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-file-pdf text-white"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-slate-800">Reporte de Tiendas</p>
+                                            <p class="text-xs text-slate-500">Generar PDF detallado</p>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-slate-400 group-hover:text-blue-600 transition-colors"></i>
+                                </button>
+
+                                <button class="w-full flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 rounded-lg transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-chart-line text-white"></i>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-semibold text-slate-800">Análisis de Ventas</p>
+                                            <p class="text-xs text-slate-500">Ver estadísticas</p>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-right text-slate-400 group-hover:text-green-600 transition-colors"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Actividad Reciente -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-slate-800">Actividad Reciente</h3>
+                            <button class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">Ver Todo</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-600">Usuario</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-600">Acción</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-600">Estado</th>
+                                        <th class="text-left py-3 px-4 text-sm font-semibold text-slate-600">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b hover:bg-slate-50 transition-colors">
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xs">A</div>
+                                                <span class="text-sm font-medium text-slate-700">Admin Usuario</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-slate-600">Creó nuevo usuario</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completado</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-slate-500">Hace 2 horas</td>
+                                    </tr>
+                                    <tr class="border-b hover:bg-slate-50 transition-colors">
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-xs">V</div>
+                                                <span class="text-sm font-medium text-slate-700">Vendedor Demo</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-slate-600">Solicitó aprobación de tienda</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">Pendiente</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-slate-500">Hace 5 horas</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 transition-colors">
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-xs">E</div>
+                                                <span class="text-sm font-medium text-slate-700">Estudiante Nuevo</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-slate-600">Se registró en la plataforma</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-slate-500">Hace 1 día</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+    <!-- ====================================================================== -->
+    <!-- == BOTÓN FLOTANTE GLOBAL - CREAR NUEVO USUARIO                      == -->
+    <!-- ====================================================================== -->
+    <button id="open-modal-btn" class="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group" style="z-index: 9999;">
+        <i class="fas fa-plus text-2xl group-hover:rotate-90 transition-transform duration-300"></i>
+    </button>
+
     <!-- ====================================================================== -->
     <!-- == SECCIÓN #3: MODAL PARA CREAR/EDITAR USUARIOS                     == -->
     <!-- ====================================================================== -->
-    <div id="user-modal" class="hidden fixed inset-0 z-50 flex justify-center items-start p-4 pt-16 sm:items-center">
+    <div id="user-modal" class="hidden fixed inset-0 z-50 flex justify-center items-center p-4">
         <div class="fixed inset-0 bg-black/60 transition-opacity duration-300"></div>
-        <div class="relative w-full max-w-lg max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col">
-            <form th:action="@{/admin/usuarios/guardar}" th:object="${usuarioDto}" method="post" id="user-form" class="flex flex-col h-full">
+        <div class="relative w-full max-w-2xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+            <form th:action="@{/admin/usuarios/guardar}" th:object="${usuarioDto}" method="post" id="user-form" class="flex flex-col h-full max-h-[90vh]">
                 <input type="hidden" th:field="*{id}">
-                <div class="sticky top-0 p-5 border-b border-slate-200 flex justify-between items-center bg-white/90 backdrop-blur-sm flex-shrink-0">
-                    <h3 id="modal-title" class="text-xl font-bold text-slate-800"></h3>
-                    <button type="button" class="close-modal-btn text-slate-400 hover:text-red-500 text-2xl">&times;</button>
-                </div>
-                <div class="p-6 space-y-5 overflow-y-auto flex-grow">
-                    <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">Información Personal</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-medium text-slate-700">Nombre</label><input type="text" th:field="*{nombre}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md text-sm" required></div>
-                            <div><label class="block text-sm font-medium text-slate-700">Apellido</label><input type="text" th:field="*{apellido}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md text-sm" required></div>
-                        </div>
-                        <div><label class="block text-sm font-medium text-slate-700">Cédula</label><input type="text" th:field="*{cedula}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md text-sm" required></div>
-                    </div>
-                    <div class="space-y-4">
-                        <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">Credenciales de Acceso</h4>
-                        <div><label class="block text-sm font-medium text-slate-700">Correo Electrónico</label><input type="email" th:field="*{correo}" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md text-sm" required></div>
-                        <div><label class="block text-sm font-medium text-slate-700">Contraseña</label><input type="password" th:field="*{password}" id="password-field" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md text-sm" placeholder="Dejar en blanco para no cambiar"></div>
-                    </div>
-                    <div class="space-y-4">
-                         <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">Roles y Permisos</h4>
-                         <div class="space-y-2">
-                            <div th:each="rol : ${todosLosRoles}" class="flex items-center p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors">
-                                <input type="checkbox" th:field="*{rolesIds}" th:value="${rol.id}" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
-                                <label th:for="${#ids.prev('rolesIds')}" th:text="${rol.nombre}" class="text-sm font-medium text-slate-700 cursor-pointer"></label>
+                <!-- Header rediseñado: gradiente temático y subtítulo -->
+                <div class="sticky top-0 flex-shrink-0 z-10">
+                    <div class="p-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 text-white flex justify-between items-start md:items-center shadow-md">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-inner">
+                                <i class="fas fa-user-plus text-white text-lg"></i>
                             </div>
-                         </div>
+                            <div class="flex flex-col">
+                                <h3 id="modal-title" class="text-lg md:text-xl font-bold leading-snug"></h3>
+                                <p id="modal-subtitle" class="text-[11px] md:text-xs font-medium tracking-wider uppercase text-white/70">Gestiona perfiles y accesos</p>
+                            </div>
+                        </div>
+                        <button type="button" class="close-modal-btn text-white/70 hover:text-white text-2xl leading-none px-2 transition-colors" aria-label="Cerrar">&times;</button>
                     </div>
                 </div>
-                <div class="sticky bottom-0 px-6 py-4 bg-slate-50/80 backdrop-blur-sm flex justify-end space-x-3 border-t border-slate-200 flex-shrink-0">
-                    <button type="button" class="close-modal-btn w-full sm:w-auto bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-4 rounded-lg border border-slate-300 text-sm">Cancelar</button>
-                    <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg text-sm"><i class="fas fa-save mr-2"></i>Guardar</button>
+                <div class="p-5 space-y-4 overflow-y-auto flex-grow">
+                    <div class="space-y-3">
+                        <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">Información Personal</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Nombre <span class="text-red-500">*</span></label>
+                                <div class="relative mt-1">
+                                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" th:field="*{nombre}" id="nombre-field" class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿ\s]+" title="Solo se permiten letras y espacios">
+                                </div>
+                                <span class="text-xs text-red-600 hidden" id="nombre-error"></span>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700">Apellido <span class="text-red-500">*</span></label>
+                                <div class="relative mt-1">
+                                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <i class="fas fa-user-tag"></i>
+                                    </span>
+                                    <input type="text" th:field="*{apellido}" id="apellido-field" class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿ\s]+" title="Solo se permiten letras y espacios">
+                                </div>
+                                <span class="text-xs text-red-600 hidden" id="apellido-error"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Cédula <span class="text-red-500">*</span></label>
+                            <div class="relative mt-1">
+                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <i class="fas fa-id-card"></i>
+                                </span>
+                                <input type="text" th:field="*{cedula}" id="cedula-field" class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required pattern="[0-9]{6,15}" minlength="6" maxlength="15" title="Ingrese una cédula válida (6-15 dígitos)">
+                            </div>
+                            <span class="text-xs text-red-600 hidden" id="cedula-error"></span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">Credenciales de Acceso</h4>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Correo Electrónico <span class="text-red-500">*</span></label>
+                            <div class="relative mt-1">
+                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" th:field="*{correo}" id="correo-field" class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required title="Ingrese un correo electrónico válido">
+                            </div>
+                            <span class="text-xs text-red-600 hidden" id="correo-error"></span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700">Contraseña <span class="text-red-500" id="password-required-indicator">*</span></label>
+                            <div class="relative mt-1">
+                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" th:field="*{password}" id="password-field" class="block w-full pl-10 pr-10 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Dejar en blanco para no cambiar" minlength="8" maxlength="100">
+                                <button type="button" id="toggle-password" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                    <i class="fas fa-eye" id="password-icon"></i>
+                                </button>
+                            </div>
+                            <span class="text-xs text-red-600 hidden" id="password-error"></span>
+                        </div>
+                        
+                        <div id="confirm-password-container">
+                            <label class="block text-sm font-medium text-slate-700">Confirmar Contraseña <span class="text-red-500" id="confirm-required-indicator">*</span></label>
+                            <div class="relative mt-1">
+                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" id="confirm-password-field" class="block w-full pl-10 pr-10 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Repita la contraseña">
+                                <button type="button" id="toggle-confirm-password" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                    <i class="fas fa-eye" id="confirm-password-icon"></i>
+                                </button>
+                            </div>
+                            <span class="text-xs text-red-600 hidden" id="confirm-password-error"></span>
+                        </div>
+                        
+                        <!-- Indicador de fortaleza de contraseña (más compacto) -->
+                        <div id="password-strength-container" class="hidden">
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="flex-grow h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                    <div id="password-strength-bar" class="h-full transition-all duration-300 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <span id="password-strength-text" class="text-xs font-semibold whitespace-nowrap"></span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-1 text-xs">
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-circle text-slate-300 text-[8px]" id="req-length"></i>
+                                    <span class="text-slate-600">Min. 8 caracteres</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-circle text-slate-300 text-[8px]" id="req-uppercase"></i>
+                                    <span class="text-slate-600">Mayúscula</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-circle text-slate-300 text-[8px]" id="req-lowercase"></i>
+                                    <span class="text-slate-600">Minúscula</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-circle text-slate-300 text-[8px]" id="req-number"></i>
+                                    <span class="text-slate-600">Número</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <i class="fas fa-circle text-slate-300 text-[8px]" id="req-special"></i>
+                                    <span class="text-slate-600">Especial</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                         <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">Roles y Permisos</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <label th:each="rol : ${todosLosRoles}" class="cursor-pointer">
+                                <input type="checkbox" th:field="*{rolesIds}" th:value="${rol.id}" class="sr-only peer">
+                                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-600 transition-all peer-checked:bg-indigo-50 peer-checked:border-indigo-400 peer-checked:text-indigo-700 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-indigo-300">
+                                    <i class="fas fa-shield-alt text-indigo-300 peer-checked:text-indigo-500"></i>
+                                    <span th:text="${rol.nombre}"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="sticky bottom-0 px-5 py-3 bg-slate-50/90 backdrop-blur-sm flex justify-end gap-3 border-t border-slate-200 flex-shrink-0">
+                    <button type="button" class="close-modal-btn bg-white hover:bg-slate-100 text-slate-700 font-semibold py-2 px-6 rounded-lg border border-slate-300 text-sm transition-colors">Cancelar</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors"><i class="fas fa-save mr-2"></i>Guardar</button>
                 </div>
             </form>
         </div>
@@ -458,6 +976,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     mainNavLinks.forEach(link => {
         link.addEventListener('click', (e) => {
+            if (link.dataset.external === 'true') {
+                return; // allow normal navigation for external links
+            }
             e.preventDefault();
             const target = link.dataset.target;
             mainNavLinks.forEach(l => l.classList.remove('active'));
@@ -491,16 +1012,286 @@ document.addEventListener('DOMContentLoaded', () => {
     // SECCIÓN 2: GRÁFICO DE APEXCHARTS (DASHBOARD)
     // ======================================================================
     if (document.querySelector("#orders-chart")) {
+        // Obtener datos reales desde el modelo de Thymeleaf
+        const pedidosData = /*[[${stats.pedidosPorDia}]]*/ [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        
         const options = {
-            series: [{ name: 'Pedidos', data: [31, 40, 28, 51, 42, 109, 100, 110, 98, 85, 70, 60, 80, 99, 115] }],
+            series: [{ name: 'Pedidos', data: pedidosData }],
             chart: { height: '100%', type: 'area', toolbar: { show: false }, zoom: { enabled: false } },
-            dataLabels: { enabled: false }, stroke: { curve: 'smooth', width: 3, colors: ['#4f46e5'] },
+            dataLabels: { enabled: false }, 
+            stroke: { curve: 'smooth', width: 3, colors: ['#4f46e5'] },
             fill: { type: "gradient", gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.1, stops: [0, 90, 100] } },
-            xaxis: { categories: [...Array(15).keys()].map(i => `Día ${i + 1}`), labels: { style: { colors: '#64748b' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-            yaxis: { labels: { style: { colors: '#64748b' } } },
-            tooltip: { x: { format: 'dd MMM' } }, grid: { borderColor: '#e2e8f0', strokeDashArray: 4 }
+            xaxis: { 
+                categories: [...Array(15).keys()].map(i => {
+                    const fecha = new Date();
+                    fecha.setDate(fecha.getDate() - (14 - i));
+                    return fecha.getDate() + ' ' + fecha.toLocaleString('es', { month: 'short' });
+                }), 
+                labels: { style: { colors: '#64748b' } }, 
+                axisBorder: { show: false }, 
+                axisTicks: { show: false } 
+            },
+            yaxis: { 
+                labels: { 
+                    style: { colors: '#64748b' },
+                    formatter: function(val) { return Math.floor(val); }
+                } 
+            },
+            tooltip: { 
+                y: { 
+                    formatter: function(val) { 
+                        return val + ' pedido' + (val !== 1 ? 's' : ''); 
+                    } 
+                } 
+            }, 
+            grid: { borderColor: '#e2e8f0', strokeDashArray: 4 }
         };
         new ApexCharts(document.querySelector("#orders-chart"), options).render();
+    }
+
+    // ======================================================================
+    // SECCIÓN 2.5: GRÁFICO DE DONA - DISTRIBUCIÓN DE USUARIOS
+    // ======================================================================
+    if (document.querySelector("#users-donut-chart")) {
+        // Obtener datos reales desde Thymeleaf
+        const totalEstudiantes = /*[[${stats.totalEstudiantes}]]*/ 0;
+        const totalVendedores = /*[[${stats.totalVendedores}]]*/ 0;
+        const totalUsuarios = /*[[${stats.totalUsuarios}]]*/ 0;
+        const totalAdmins = totalUsuarios - totalEstudiantes - totalVendedores;
+
+        const donutOptions = {
+            series: [totalEstudiantes, totalVendedores, totalAdmins],
+            chart: {
+                type: 'donut',
+                height: '100%',
+                fontFamily: 'Inter, sans-serif'
+            },
+            labels: ['Estudiantes', 'Vendedores', 'Administradores'],
+            colors: ['#22c55e', '#3b82f6', '#f59e0b'],
+            dataLabels: {
+                enabled: true,
+                formatter: function (val, opts) {
+                    return opts.w.config.series[opts.seriesIndex];
+                },
+                style: {
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    colors: ['#fff']
+                },
+                dropShadow: {
+                    enabled: true,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.5
+                }
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '70%',
+                        labels: {
+                            show: true,
+                            name: {
+                                show: true,
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#64748b'
+                            },
+                            value: {
+                                show: true,
+                                fontSize: '24px',
+                                fontWeight: 'bold',
+                                color: '#1e293b',
+                                formatter: function (val) {
+                                    return val;
+                                }
+                            },
+                            total: {
+                                show: true,
+                                showAlways: true,
+                                label: 'Total Usuarios',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#64748b',
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            legend: {
+                show: false
+            },
+            stroke: {
+                show: true,
+                width: 3,
+                colors: ['#fff']
+            },
+            tooltip: {
+                enabled: true,
+                y: {
+                    formatter: function(val, opts) {
+                        const total = opts.w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                        const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                        return val + ' (' + percentage + '%)';
+                    }
+                }
+            },
+            responsive: [{
+                breakpoint: 768,
+                options: {
+                    chart: {
+                        height: 250
+                    }
+                }
+            }]
+        };
+        
+        new ApexCharts(document.querySelector("#users-donut-chart"), donutOptions).render();
+    }
+
+    // ======================================================================
+    // SECCIÓN 2.6: GRÁFICO DE BARRAS - TOP TIENDAS MÁS VISITADAS
+    // ======================================================================
+    if (document.querySelector("#top-stores-chart")) {
+        // Obtener datos reales desde el backend
+        const tiendasPopulares = /*[[${tiendasPopulares}]]*/ [];
+        
+        let storesData = [];
+        
+        // Si hay datos reales, usarlos
+        if (tiendasPopulares && tiendasPopulares.length > 0) {
+            storesData = tiendasPopulares.map(tienda => ({
+                name: tienda.nombre,
+                visits: tienda.cantidadPedidos
+            }));
+        } else {
+            // Datos de ejemplo si no hay tiendas con pedidos
+            storesData = [
+                { name: 'Sin datos', visits: 0 }
+            ];
+        }
+        
+        const storeNames = storesData.map(s => s.name);
+        const storeVisits = storesData.map(s => s.visits);
+        
+        const topStoresOptions = {
+            series: [{
+                name: 'Pedidos',
+                data: storeVisits
+            }],
+            chart: {
+                type: 'bar',
+                height: 320,
+                fontFamily: 'Inter, sans-serif',
+                toolbar: {
+                    show: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    borderRadius: 6,
+                    distributed: true,
+                    barHeight: '60%',
+                    dataLabels: {
+                        position: 'top'
+                    }
+                }
+            },
+            colors: ['#f59e0b', '#a855f7', '#3b82f6', '#10b981', '#ef4444'],
+            dataLabels: {
+                enabled: true,
+                textAnchor: 'start',
+                offsetX: 8,
+                style: {
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    colors: ['#fff']
+                },
+                formatter: function(val, opt) {
+                    return val + ' pedidos';
+                },
+                dropShadow: {
+                    enabled: true,
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.5
+                }
+            },
+            xaxis: {
+                categories: storeNames,
+                labels: {
+                    style: {
+                        colors: '#64748b',
+                        fontSize: '11px'
+                    },
+                    formatter: function(val) {
+                        return Math.floor(val);
+                    }
+                },
+                axisBorder: {
+                    show: false
+                },
+                axisTicks: {
+                    show: false
+                }
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        colors: '#1e293b',
+                        fontSize: '12px',
+                        fontWeight: 600
+                    },
+                    maxWidth: 140
+                }
+            },
+            grid: {
+                borderColor: '#e2e8f0',
+                strokeDashArray: 4,
+                xaxis: {
+                    lines: {
+                        show: true
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: false
+                    }
+                }
+            },
+            tooltip: {
+                enabled: true,
+                y: {
+                    formatter: function(val) {
+                        return val + ' pedidos';
+                    }
+                },
+                custom: function({series, seriesIndex, dataPointIndex, w}) {
+                    const storeName = w.config.xaxis.categories[dataPointIndex];
+                    const pedidos = series[seriesIndex][dataPointIndex];
+                    
+                    return '<div class="bg-white p-3 rounded-lg shadow-xl border border-slate-200">' +
+                            '<div class="flex items-center gap-2 mb-1">' +
+                            '<i class="fas fa-store text-purple-600"></i>' +
+                            '<span class="font-bold text-slate-800">' + storeName + '</span>' +
+                            '</div>' +
+                            '<p class="text-sm text-slate-600">' + pedidos + ' pedidos realizados</p>' +
+                            '<p class="text-xs text-slate-500 mt-1">🔥 ' + (dataPointIndex === 0 ? '¡Más popular!' : 'Top ' + (dataPointIndex + 1)) + '</p>' +
+                            '</div>';
+                }
+            },
+            legend: {
+                show: false
+            }
+        };
+        
+        new ApexCharts(document.querySelector("#top-stores-chart"), topStoresOptions).render();
     }
 
 
@@ -513,9 +1304,296 @@ document.addEventListener('DOMContentLoaded', () => {
     const userForm = document.getElementById('user-form');
     const modalTitle = document.getElementById('modal-title');
     const passwordField = document.getElementById('password-field');
+    const confirmPasswordField = document.getElementById('confirm-password-field');
+    const passwordStrengthContainer = document.getElementById('password-strength-container');
+    const confirmPasswordContainer = document.getElementById('confirm-password-container');
 
     const openModal = () => userModal.classList.remove('hidden');
     const closeModal = () => userModal.classList.add('hidden');
+
+    // Función para validar fortaleza de contraseña
+    function validatePasswordStrength(password) {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+        };
+
+        const metRequirements = Object.values(requirements).filter(Boolean).length;
+        let strength = 0;
+        let strengthText = '';
+        let strengthColor = '';
+
+        if (metRequirements === 5) {
+            strength = 100;
+            strengthText = 'Fuerte';
+            strengthColor = 'bg-green-500';
+        } else if (metRequirements >= 3) {
+            strength = 60;
+            strengthText = 'Media';
+            strengthColor = 'bg-yellow-500';
+        } else {
+            strength = 30;
+            strengthText = 'Débil';
+            strengthColor = 'bg-red-500';
+        }
+
+        return { requirements, strength, strengthText, strengthColor };
+    }
+
+    // Actualizar indicador de fortaleza de contraseña
+    function updatePasswordStrength() {
+        const password = passwordField.value;
+        
+        if (password.length === 0) {
+            passwordStrengthContainer.classList.add('hidden');
+            return;
+        }
+
+        passwordStrengthContainer.classList.remove('hidden');
+        const result = validatePasswordStrength(password);
+
+        // Actualizar barra de progreso
+        const strengthBar = document.getElementById('password-strength-bar');
+        const strengthText = document.getElementById('password-strength-text');
+        strengthBar.style.width = result.strength + '%';
+        strengthBar.className = 'h-full transition-all duration-300 rounded-full ' + result.strengthColor;
+        strengthText.textContent = result.strengthText;
+        strengthText.className = 'text-xs font-semibold ' + (result.strengthText === 'Fuerte' ? 'text-green-600' : result.strengthText === 'Media' ? 'text-yellow-600' : 'text-red-600');
+
+        // Actualizar iconos de requisitos
+        document.getElementById('req-length').className = result.requirements.length ? 'fas fa-check-circle text-green-500' : 'fas fa-circle text-slate-300';
+        document.getElementById('req-uppercase').className = result.requirements.uppercase ? 'fas fa-check-circle text-green-500' : 'fas fa-circle text-slate-300';
+        document.getElementById('req-lowercase').className = result.requirements.lowercase ? 'fas fa-check-circle text-green-500' : 'fas fa-circle text-slate-300';
+        document.getElementById('req-number').className = result.requirements.number ? 'fas fa-check-circle text-green-500' : 'fas fa-circle text-slate-300';
+        document.getElementById('req-special').className = result.requirements.special ? 'fas fa-check-circle text-green-500' : 'fas fa-circle text-slate-300';
+    }
+
+    // Validar que las contraseñas coincidan
+    function validatePasswordMatch() {
+        const password = passwordField.value;
+        const confirmPassword = confirmPasswordField.value;
+        const errorSpan = document.getElementById('confirm-password-error');
+
+        if (confirmPassword.length === 0) {
+            errorSpan.classList.add('hidden');
+            confirmPasswordField.classList.remove('border-red-500', 'border-green-500');
+            return true;
+        }
+
+        if (password !== confirmPassword) {
+            errorSpan.textContent = 'Las contraseñas no coinciden';
+            errorSpan.classList.remove('hidden');
+            confirmPasswordField.classList.add('border-red-500');
+            confirmPasswordField.classList.remove('border-green-500');
+            return false;
+        } else {
+            errorSpan.classList.add('hidden');
+            confirmPasswordField.classList.remove('border-red-500');
+            confirmPasswordField.classList.add('border-green-500');
+            return true;
+        }
+    }
+
+    // Validación en tiempo real de campos
+    function setupFieldValidation(fieldId, errorId, validationFn, errorMsg) {
+        const field = document.getElementById(fieldId);
+        const errorSpan = document.getElementById(errorId);
+
+        if (!field) return;
+
+        field.addEventListener('blur', () => {
+            if (field.value.trim() === '' && field.required) {
+                errorSpan.textContent = 'Este campo es requerido';
+                errorSpan.classList.remove('hidden');
+                field.classList.add('border-red-500');
+                field.classList.remove('border-green-500');
+            } else if (field.value.trim() !== '' && !field.checkValidity()) {
+                errorSpan.textContent = errorMsg || field.validationMessage;
+                errorSpan.classList.remove('hidden');
+                field.classList.add('border-red-500');
+                field.classList.remove('border-green-500');
+            } else if (field.value.trim() !== '') {
+                errorSpan.classList.add('hidden');
+                field.classList.remove('border-red-500');
+                field.classList.add('border-green-500');
+            } else {
+                errorSpan.classList.add('hidden');
+                field.classList.remove('border-red-500', 'border-green-500');
+            }
+        });
+
+        field.addEventListener('input', () => {
+            if (field.classList.contains('border-red-500') && field.checkValidity()) {
+                errorSpan.classList.add('hidden');
+                field.classList.remove('border-red-500');
+                if (field.value.trim() !== '') {
+                    field.classList.add('border-green-500');
+                }
+            }
+        });
+    }
+
+    // Configurar validaciones de campos
+    setupFieldValidation('nombre-field', 'nombre-error', null, 'El nombre debe contener solo letras (2-50 caracteres)');
+    setupFieldValidation('apellido-field', 'apellido-error', null, 'El apellido debe contener solo letras (2-50 caracteres)');
+    setupFieldValidation('cedula-field', 'cedula-error', null, 'La cédula debe contener entre 6 y 15 dígitos');
+    setupFieldValidation('correo-field', 'correo-error', null, 'Ingrese un correo electrónico válido');
+
+    // Bloquear entrada de números en campos de nombre y apellido
+    const nombreField = document.getElementById('nombre-field');
+    const apellidoField = document.getElementById('apellido-field');
+    
+    if (nombreField) {
+        nombreField.addEventListener('keypress', (e) => {
+            const char = String.fromCharCode(e.which || e.keyCode);
+            // Solo permite letras (incluyendo acentos), espacios y ñ
+            if (!/^[A-Za-zÀ-ÿñÑ\s]$/.test(char)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        nombreField.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanedText = pastedText.replace(/[^A-Za-zÀ-ÿñÑ\s]/g, '');
+            nombreField.value = cleanedText;
+        });
+    }
+    
+    if (apellidoField) {
+        apellidoField.addEventListener('keypress', (e) => {
+            const char = String.fromCharCode(e.which || e.keyCode);
+            // Solo permite letras (incluyendo acentos), espacios y ñ
+            if (!/^[A-Za-zÀ-ÿñÑ\s]$/.test(char)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        apellidoField.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanedText = pastedText.replace(/[^A-Za-zÀ-ÿñÑ\s]/g, '');
+            apellidoField.value = cleanedText;
+        });
+    }
+
+    // Bloquear entrada de letras en campo de cédula (solo números)
+    const cedulaField = document.getElementById('cedula-field');
+    
+    if (cedulaField) {
+        cedulaField.addEventListener('keypress', (e) => {
+            const char = String.fromCharCode(e.which || e.keyCode);
+            // Solo permite números
+            if (!/^[0-9]$/.test(char)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        cedulaField.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanedText = pastedText.replace(/[^0-9]/g, '');
+            cedulaField.value = cleanedText;
+        });
+        
+        // Limitar longitud mientras se escribe
+        cedulaField.addEventListener('input', (e) => {
+            if (cedulaField.value.length > 15) {
+                cedulaField.value = cedulaField.value.slice(0, 15);
+            }
+        });
+    }
+
+    // Listeners para contraseña
+    if (passwordField) {
+        passwordField.addEventListener('input', updatePasswordStrength);
+        passwordField.addEventListener('input', () => {
+            if (confirmPasswordField.value.length > 0) {
+                validatePasswordMatch();
+            }
+        });
+    }
+
+    if (confirmPasswordField) {
+        confirmPasswordField.addEventListener('input', validatePasswordMatch);
+    }
+
+    // Toggle mostrar/ocultar contraseña
+    document.getElementById('toggle-password')?.addEventListener('click', () => {
+        const type = passwordField.type === 'password' ? 'text' : 'password';
+        passwordField.type = type;
+        const icon = document.getElementById('password-icon');
+        icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+
+    document.getElementById('toggle-confirm-password')?.addEventListener('click', () => {
+        const type = confirmPasswordField.type === 'password' ? 'text' : 'password';
+        confirmPasswordField.type = type;
+        const icon = document.getElementById('confirm-password-icon');
+        icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+
+    // Validación antes de enviar el formulario
+    userForm.addEventListener('submit', (e) => {
+        let isValid = true;
+        const passwordValue = passwordField.value;
+        const isCreating = userForm.querySelector('[name="id"]').value === '0';
+
+        // Validar contraseña solo si se está creando un usuario o si se ingresó una contraseña en edición
+        if (isCreating || passwordValue.length > 0) {
+            if (passwordValue.length === 0) {
+                e.preventDefault();
+                isValid = false;
+                document.getElementById('password-error').textContent = 'La contraseña es requerida';
+                document.getElementById('password-error').classList.remove('hidden');
+                passwordField.classList.add('border-red-500');
+            } else {
+                const result = validatePasswordStrength(passwordValue);
+                const allRequirementsMet = Object.values(result.requirements).every(Boolean);
+                
+                if (!allRequirementsMet) {
+                    e.preventDefault();
+                    isValid = false;
+                    document.getElementById('password-error').textContent = 'La contraseña no cumple con todos los requisitos de seguridad';
+                    document.getElementById('password-error').classList.remove('hidden');
+                    passwordField.classList.add('border-red-500');
+                }
+
+                if (!validatePasswordMatch()) {
+                    e.preventDefault();
+                    isValid = false;
+                }
+            }
+        }
+
+        // Validar todos los campos requeridos
+        const requiredFields = ['nombre-field', 'apellido-field', 'cedula-field', 'correo-field'];
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (!field.checkValidity()) {
+                e.preventDefault();
+                isValid = false;
+                field.classList.add('border-red-500');
+                const errorSpan = document.getElementById(fieldId.replace('-field', '-error'));
+                errorSpan.textContent = field.validationMessage;
+                errorSpan.classList.remove('hidden');
+            }
+        });
+
+        if (!isValid) {
+            // Scroll al primer error
+            const firstError = userForm.querySelector('.border-red-500');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
 
     if (openModalBtn) {
         openModalBtn.addEventListener('click', () => {
@@ -524,6 +1602,21 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTitle.textContent = 'Crear Nuevo Usuario';
             passwordField.placeholder = 'Contraseña (requerida)';
             passwordField.required = true;
+            document.getElementById('password-required-indicator').classList.remove('hidden');
+            document.getElementById('confirm-required-indicator').classList.remove('hidden');
+            
+            // Campo de confirmar contraseña siempre visible, marcar como requerido
+            confirmPasswordField.required = true;
+            
+            // Limpiar validaciones visuales
+            userForm.querySelectorAll('input').forEach(input => {
+                input.classList.remove('border-red-500', 'border-green-500');
+            });
+            userForm.querySelectorAll('.text-red-600').forEach(span => {
+                span.classList.add('hidden');
+            });
+            passwordStrengthContainer.classList.add('hidden');
+            
             openModal();
         });
     }
@@ -579,6 +1672,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalTitle.textContent = 'Crear Nuevo Usuario';
                 passwordField.placeholder = 'Contraseña (requerida)';
                 passwordField.required = true;
+                document.getElementById('password-required-indicator').classList.remove('hidden');
+                document.getElementById('confirm-required-indicator').classList.remove('hidden');
+                
+                // Campo de confirmar contraseña siempre visible
+                confirmPasswordField.required = true;
+                
+                // Limpiar validaciones visuales
+                userForm.querySelectorAll('input').forEach(input => {
+                    input.classList.remove('border-red-500', 'border-green-500');
+                });
+                userForm.querySelectorAll('.text-red-600').forEach(span => {
+                    span.classList.add('hidden');
+                });
+                passwordStrengthContainer.classList.add('hidden');
+                
                 openModal();
             }, 300);
         });
@@ -586,6 +1694,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeModalBtns.forEach(btn => btn.addEventListener('click', closeModal));
     userModal.addEventListener('click', e => { if (e.target.id === 'user-modal') closeModal(); });
+
+    // Manejador para los botones de cambio de vista desde el dashboard
+    const switchViewBtns = document.querySelectorAll('.switch-view-from-dashboard');
+    switchViewBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const targetSection = btn.dataset.target;
+            const targetView = btn.dataset.view;
+            const targetTitle = btn.dataset.title;
+            
+            // Actualizar navegación principal
+            document.querySelectorAll('.main-nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.target === targetSection) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Si hay vista específica, actualizar navegación contextual y vista
+            if (targetView) {
+                // Actualizar navegación contextual
+                document.querySelectorAll('.context-nav-link').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.dataset.view === targetView) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Mostrar la vista específica
+                allViews.forEach(view => {
+                    view.classList.remove('active');
+                    if (view.id === targetView) {
+                        view.classList.add('active');
+                    }
+                });
+                
+                // Actualizar breadcrumb y título
+                headerTitle.textContent = targetTitle || 'Dashboard';
+                document.getElementById('breadcrumb-active').textContent = targetTitle || 'Dashboard';
+            } else {
+                // Si no hay vista específica, activar la primera del menú contextual
+                const firstSubNavLink = contextualNavContainer.querySelector('.context-nav-link');
+                if (firstSubNavLink) {
+                    firstSubNavLink.click();
+                } else {
+                    switchView(`view-${targetSection}`, targetSection);
+                }
+            }
+        });
+    });
 
     async function openEditModal(userId) {
         try {
@@ -607,12 +1766,43 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTitle.textContent = 'Editar Usuario';
             passwordField.placeholder = 'Dejar en blanco para no cambiar';
             passwordField.required = false;
+            document.getElementById('password-required-indicator').classList.add('hidden');
+            document.getElementById('confirm-required-indicator').classList.add('hidden');
+            
+            // En modo edición, el campo de confirmar contraseña está visible pero no requerido inicialmente
+            confirmPasswordField.required = false;
+            confirmPasswordField.value = '';
+            
+            // Limpiar validaciones visuales
+            userForm.querySelectorAll('input').forEach(input => {
+                input.classList.remove('border-red-500', 'border-green-500');
+            });
+            userForm.querySelectorAll('.text-red-600').forEach(span => {
+                span.classList.add('hidden');
+            });
+            passwordStrengthContainer.classList.add('hidden');
+            
             openModal();
         } catch (error) {
             console.error("Error en la función de editar:", error);
             alert("No se pudo cargar la información del usuario.");
         }
     }
+
+    // Mostrar indicador de requerido en confirmar contraseña si se escribe una contraseña en modo edición
+    passwordField.addEventListener('input', () => {
+        const isEditing = userForm.querySelector('[name="id"]').value !== '0';
+        if (isEditing) {
+            if (passwordField.value.length > 0) {
+                confirmPasswordField.required = true;
+                document.getElementById('confirm-required-indicator').classList.remove('hidden');
+            } else {
+                confirmPasswordField.required = false;
+                document.getElementById('confirm-required-indicator').classList.add('hidden');
+                confirmPasswordField.value = '';
+            }
+        }
+    });
 
 
     // ======================================================================
@@ -831,23 +2021,87 @@ document.body.addEventListener('click', async (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     const userMenuButton = document.getElementById('user-menu-button');
     const userMenuPanel = document.getElementById('user-menu-panel');
+    const notificationsButton = document.getElementById('notifications-button');
+    const notificationsPanel = document.getElementById('notifications-panel');
+    const notificationsBadge = document.getElementById('notifications-badge');
+    const markAllReadBtn = document.getElementById('mark-all-read');
 
+    // Menú de usuario
     if (userMenuButton && userMenuPanel) {
-        // Evento para mostrar/ocultar el menú al hacer clic en el botón
         userMenuButton.addEventListener('click', (event) => {
             userMenuPanel.classList.toggle('hidden');
-            event.stopPropagation(); // Evita que el clic se propague al documento
+            // Cerrar notificaciones si está abierto
+            if (notificationsPanel && !notificationsPanel.classList.contains('hidden')) {
+                notificationsPanel.classList.add('hidden');
+            }
+            event.stopPropagation();
         });
 
-        // Evento para cerrar el menú si se hace clic fuera de él
         document.addEventListener('click', (event) => {
             if (!userMenuPanel.classList.contains('hidden') && !userMenuPanel.contains(event.target)) {
                 userMenuPanel.classList.add('hidden');
             }
         });
     }
-    
-    // Aquí puedes añadir el resto de tu JavaScript que ya tenías
+
+    // Panel de notificaciones
+    if (notificationsButton && notificationsPanel) {
+        notificationsButton.addEventListener('click', (event) => {
+            notificationsPanel.classList.toggle('hidden');
+            // Cerrar menú de usuario si está abierto
+            if (userMenuPanel && !userMenuPanel.classList.contains('hidden')) {
+                userMenuPanel.classList.add('hidden');
+            }
+            event.stopPropagation();
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!notificationsPanel.classList.contains('hidden') && 
+                !notificationsPanel.contains(event.target) && 
+                !notificationsButton.contains(event.target)) {
+                notificationsPanel.classList.add('hidden');
+            }
+        });
+
+        // Marcar notificación individual como leída al hacer clic
+        const notificationItems = document.querySelectorAll('.notification-item');
+        notificationItems.forEach(item => {
+            item.addEventListener('click', () => {
+                item.classList.remove('unread');
+                const dot = item.querySelector('.bg-indigo-500');
+                if (dot) dot.remove();
+                updateNotificationBadge();
+            });
+        });
+
+        // Marcar todas como leídas
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                    const dot = item.querySelector('.bg-indigo-500');
+                    if (dot) dot.remove();
+                });
+                updateNotificationBadge();
+            });
+        }
+
+        // Actualizar badge de notificaciones
+        function updateNotificationBadge() {
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            if (notificationsBadge) {
+                if (unreadCount > 0) {
+                    notificationsBadge.classList.remove('hidden');
+                } else {
+                    notificationsBadge.classList.add('hidden');
+                }
+            }
+        }
+
+        // Inicializar badge
+        updateNotificationBadge();
+    }
 });
 </script>
 </body>
