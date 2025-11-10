@@ -899,16 +899,20 @@
                         </div>
                     </div>
                     <div class="space-y-3">
-                         <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">Roles y Permisos</h4>
-                        <div class="flex flex-wrap gap-2">
+                         <h4 class="text-sm font-semibold text-slate-500 uppercase tracking-wider border-b pb-1">
+                            Roles y Permisos <span class="text-red-500">*</span>
+                            <span class="text-xs font-normal text-slate-400">(Selecciona al menos uno)</span>
+                         </h4>
+                        <div class="flex flex-wrap gap-2" id="roles-container">
                             <label th:each="rol : ${todosLosRoles}" class="cursor-pointer">
-                                <input type="checkbox" th:field="*{rolesIds}" th:value="${rol.id}" class="sr-only peer">
+                                <input type="checkbox" th:field="*{rolesIds}" th:value="${rol.id}" class="sr-only peer role-checkbox">
                                 <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-medium text-slate-600 transition-all peer-checked:bg-indigo-50 peer-checked:border-indigo-400 peer-checked:text-indigo-700 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-indigo-300">
                                     <i class="fas fa-shield-alt text-indigo-300 peer-checked:text-indigo-500"></i>
                                     <span th:text="${rol.nombre}"></span>
                                 </span>
                             </label>
                         </div>
+                        <p id="roles-error" class="text-xs text-red-600 hidden">Debes seleccionar al menos un rol</p>
                     </div>
                 </div>
                 <div class="sticky bottom-0 px-5 py-3 bg-slate-50/90 backdrop-blur-sm flex justify-end gap-3 border-t border-slate-200 flex-shrink-0">
@@ -1545,6 +1549,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const passwordValue = passwordField.value;
         const isCreating = userForm.querySelector('[name="id"]').value === '0';
 
+        // Validar que al menos un rol esté seleccionado
+        const rolesCheckboxes = userForm.querySelectorAll('input[name="rolesIds"]:checked');
+        const rolesError = document.getElementById('roles-error');
+        const rolesContainer = document.getElementById('roles-container');
+        
+        if (rolesCheckboxes.length === 0) {
+            e.preventDefault();
+            isValid = false;
+            rolesError.classList.remove('hidden');
+            rolesContainer.classList.add('border-2', 'border-red-300', 'rounded-lg', 'p-2');
+        } else {
+            rolesError.classList.add('hidden');
+            rolesContainer.classList.remove('border-2', 'border-red-300', 'rounded-lg', 'p-2');
+        }
+
         // Validar contraseña solo si se está creando un usuario o si se ingresó una contraseña en edición
         if (isCreating || passwordValue.length > 0) {
             if (passwordValue.length === 0) {
@@ -1587,11 +1606,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (!isValid) {
+            e.preventDefault(); // Asegurar que se previene el envío si hay errores
             // Scroll al primer error
             const firstError = userForm.querySelector('.border-red-500');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+        } else {
+            // Si es válido, el formulario se enviará normalmente
+            console.log('✅ Formulario válido, enviando datos...');
+            console.log('Roles seleccionados:', rolesCheckboxes.length);
         }
     });
 
