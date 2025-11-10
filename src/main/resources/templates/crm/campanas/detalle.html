@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle Campaña - UniEats</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+        .detalle-container { max-width: 960px; margin: 30px auto; padding: 0 20px; }
+        .header-card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 10px 30px rgba(15,23,42,0.1); margin-bottom: 24px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .estado-badge { padding: 6px 14px; border-radius: 999px; font-weight: 600; font-size: 12px; text-transform: uppercase; }
+        .estado-BORRADOR { background: #e5e7eb; color: #111827; }
+        .estado-ACTIVA { background: #dcfce7; color: #166534; }
+        .estado-PAUSADA { background: #fef3c7; color: #92400e; }
+        .estado-FINALIZADA { background: #dbeafe; color: #1d4ed8; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 18px; margin-top: 20px; }
+        .metric-card { background: white; padding: 18px; border-radius: 14px; box-shadow: 0 8px 20px rgba(15,23,42,0.08); }
+        .metric-title { font-size: 12px; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+        .metric-value { font-size: 26px; font-weight: 700; color: #1f2937; }
+        .section-card { background: white; padding: 20px; border-radius: 14px; box-shadow: 0 6px 20px rgba(15,23,42,0.08); margin-bottom: 22px; }
+        .section-card h2 { margin: 0 0 12px 0; color: #111827; font-size: 20px; display:flex; align-items:center; gap:10px; }
+        .section-card p { color: #4b5563; line-height: 1.6; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-secondary { background: #f3f4f6; color: #1f2937; }
+        .actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <div class="detalle-container">
+        <div class="header-card">
+            <div class="header-top">
+                <div>
+                    <h1 style="margin:0; font-size:28px; color:#111827;" th:text="${campana.nombre}">Campaña</h1>
+                    <p style="color:#6b7280; margin-top:6px;" th:text="${campana.descripcion}">Descripción de la campaña</p>
+                </div>
+                <span class="estado-badge" th:classappend="' estado-' + ${campana.estado}" th:text="${campana.estado}">BORRADOR</span>
+            </div>
+            <div class="grid" style="margin-top:24px;">
+                <div class="metric-card">
+                    <div class="metric-title">Segmento objetivo</div>
+                    <div class="metric-value" style="font-size:18px;" th:text="${campana.segmentoNombre != null ? campana.segmentoNombre : 'Sin segmento'}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Tipo</div>
+                    <div class="metric-value" style="font-size:18px;" th:text="${campana.tipo}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Presupuesto</div>
+                    <div class="metric-value" th:text="${campana.presupuesto != null ? '$' + #numbers.formatDecimal(campana.presupuesto, 1, 'POINT', 2, 'COMMA') : 'No definido'}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">ROI</div>
+                    <div class="metric-value" th:text="${campana.roi != null ? #numbers.formatDecimal(campana.roi,1,'POINT',2,'COMMA') + '%' : '0%'}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h2><i class="fas fa-calendar"></i> Cronograma</h2>
+            <p><strong>Inicio:</strong> <span th:text="${campana.fechaInicio != null ? #temporals.format(campana.fechaInicio, 'dd/MM/yyyy HH:mm') : 'No definido'}"></span></p>
+            <p><strong>Fin:</strong> <span th:text="${campana.fechaFin != null ? #temporals.format(campana.fechaFin, 'dd/MM/yyyy HH:mm') : 'No definido'}"></span></p>
+            <p><strong>Objetivo:</strong> <span th:text="${campana.objetivo != null ? campana.objetivo : 'Sin objetivo especificado'}"></span></p>
+            <p><strong>Plantilla asociada:</strong> <span th:text="${campana.templateNombre != null ? campana.templateNombre : 'Sin plantilla asignada'}"></span></p>
+        </div>
+
+        <div class="section-card">
+            <h2><i class="fas fa-chart-line"></i> Métricas de rendimiento</h2>
+            <div class="grid">
+                <div class="metric-card">
+                    <div class="metric-title">Envíos totales</div>
+                    <div class="metric-value" th:text="${campana.enviosTotales}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Envíos exitosos</div>
+                    <div class="metric-value" th:text="${campana.enviosExitosos}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Envíos fallidos</div>
+                    <div class="metric-value" th:text="${campana.enviosFallidos}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Tasa de apertura</div>
+                    <div class="metric-value" th:text="${campana.tasaApertura != null ? #numbers.formatDecimal(campana.tasaApertura,1,'POINT',1,'COMMA') + '%' : '0%'}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Tasa de clics</div>
+                    <div class="metric-value" th:text="${campana.tasaClics != null ? #numbers.formatDecimal(campana.tasaClics,1,'POINT',1,'COMMA') + '%' : '0%'}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Conversiones</div>
+                    <div class="metric-value" th:text="${campana.conversiones}"></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Ingresos generados</div>
+                    <div class="metric-value" th:text="${campana.ingresosGenerados != null ? '$' + #numbers.formatDecimal(campana.ingresosGenerados,1,'POINT',2,'COMMA') : '$0.00'}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a th:href="@{'/crm/campanas/' + ${campana.id} + '/editar'}" class="btn btn-primary"><i class="fas fa-edit"></i> Editar campaña</a>
+            <a th:href="@{/crm/campanas}" class="btn btn-secondary">Volver al listado</a>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/a2e0e9fd19.js" crossorigin="anonymous"></script>
+</body>
+</html>

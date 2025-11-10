@@ -66,7 +66,7 @@ public class PowerBIService {
             dto.setEmbedType(config.getEmbedType());
             dto.setAccessToken(config.getAccessToken());
             dto.setActivo(config.getActivo());
-            dto.setTokenValido(!config.isTokenExpired());
+            dto.setTokenValido(config.getTokenExpiry() != null && !config.isTokenExpired());
             dto.setConfigJson(config.getConfigJson());
             dto.setTieneConfiguracion(true);
             dto.setMensajeEstado("Reporte configurado correctamente");

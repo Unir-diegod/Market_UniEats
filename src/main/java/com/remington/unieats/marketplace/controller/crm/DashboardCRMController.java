@@ -30,7 +30,14 @@ public class DashboardCRMController {
      */
     @GetMapping
     public String dashboardCRM(Model model) {
-        // La vista cargará los datos dinámicamente vía API
+        try {
+            // Cargar datos iniciales para el dashboard
+            DashboardCRMDTO metricas = dashboardService.obtenerMetricasDashboard();
+            model.addAttribute("stats", metricas);
+        } catch (Exception e) {
+            // Si hay error, enviar objeto vacío para evitar página en blanco
+            model.addAttribute("stats", new DashboardCRMDTO());
+        }
         return "admin/admin_dashboard_crm";
     }
 

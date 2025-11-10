@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard CRM - UniEats Admin</title>
+    <title>Análisis CRM - UniEats Admin</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -335,7 +335,7 @@
     <nav class="navbar navbar-expand-lg navbar-crm">
         <div class="container-fluid">
             <a class="navbar-brand" href="/admin/dashboard">
-                <i class="fas fa-chart-line"></i> UniEats CRM
+                <i class="fas fa-chart-line"></i> Análisis CRM
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -379,7 +379,7 @@
         <div class="dashboard-header">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <h1><i class="fas fa-chart-line"></i> Dashboard CRM</h1>
+                    <h1><i class="fas fa-chart-line"></i> Análisis CRM</h1>
                     <p class="text-muted mb-0">Análisis completo de métricas de marketing y CRM</p>
                 </div>
                 <div class="col-md-4 text-end">
@@ -650,17 +650,22 @@
 
         async function loadDashboard() {
             try {
+                console.log('=== Iniciando carga de dashboard CRM ===');
                 document.getElementById('loadingSpinner').style.display = 'block';
                 document.getElementById('dashboardContent').style.display = 'none';
 
-                const response = await fetch('/crm/dashboard/api/metricas-completas');
+                const url = '/crm/dashboard/api/metricas-completas';
+                console.log('Llamando a:', url);
+                
+                const response = await fetch(url);
                 
                 console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
                 
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('Error response:', errorText);
-                    throw new Error('Error al cargar datos: ' + response.status);
+                    throw new Error(`Error al cargar datos: ${response.status} - ${response.statusText}`);
                 }
 
                 dashboardData = await response.json();
@@ -668,6 +673,7 @@
                 
                 // Verificar si hay datos
                 if (!dashboardData || dashboardData.totalClientes === 0) {
+                    console.warn('No hay datos disponibles en el sistema');
                     mostrarMensajeSinDatos();
                     return;
                 }
@@ -678,7 +684,9 @@
                 document.getElementById('dashboardContent').style.display = 'block';
 
             } catch (error) {
+                console.error('=== ERROR AL CARGAR DASHBOARD ===');
                 console.error('Error completo:', error);
+                console.error('Stack:', error.stack);
                 document.getElementById('loadingSpinner').style.display = 'none';
                 mostrarMensajeError(error.message);
             }

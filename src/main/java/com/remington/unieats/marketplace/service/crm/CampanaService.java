@@ -187,6 +187,20 @@ public class CampanaService {
     }
 
     /**
+     * Obtener todos los segmentos disponibles para asociar a una campaña
+     */
+    public List<Segmento> obtenerTodosLosSegmentos() {
+        return segmentoRepository.findAll();
+    }
+
+    /**
+     * Obtener todas las plantillas de email disponibles
+     */
+    public List<EmailTemplate> obtenerTemplatesDisponibles() {
+        return emailTemplateRepository.findAll();
+    }
+
+    /**
      * Convertir entidad a DTO
      */
     public CampanaDTO convertirADTO(Campana campana) {
@@ -231,6 +245,30 @@ public class CampanaService {
         return campanaRepository.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Convertir entidad a request para prellenar formularios
+     */
+    public CampanaRequest convertirARequest(Campana campana) {
+        CampanaRequest request = new CampanaRequest();
+        request.setNombre(campana.getNombre());
+        request.setDescripcion(campana.getDescripcion());
+        request.setTipo(campana.getTipo());
+        request.setFechaInicio(campana.getFechaInicio());
+        request.setFechaFin(campana.getFechaFin());
+        request.setPresupuesto(campana.getPresupuesto());
+        request.setObjetivo(campana.getObjetivo());
+
+        if (campana.getSegmento() != null) {
+            request.setSegmentoId(campana.getSegmento().getId());
+        }
+
+        if (campana.getTemplate() != null) {
+            request.setTemplateId(campana.getTemplate().getId());
+        }
+
+        return request;
     }
 
     /**

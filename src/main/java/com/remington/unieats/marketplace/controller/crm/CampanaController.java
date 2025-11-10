@@ -23,6 +23,12 @@ public class CampanaController {
     @Autowired
     private CampanaService campanaService;
 
+    private void prepararFormulario(Model model) {
+        model.addAttribute("segmentos", campanaService.obtenerTodosLosSegmentos());
+        model.addAttribute("templates", campanaService.obtenerTemplatesDisponibles());
+        model.addAttribute("tiposCampana", List.of("EMAIL", "SMS", "PUSH", "PROMOCION", "DESCUENTO"));
+    }
+
     /**
      * Ver todas las campañas
      */
@@ -39,6 +45,7 @@ public class CampanaController {
     @GetMapping("/nueva")
     public String formularioNuevaCampana(Model model) {
         model.addAttribute("campanaRequest", new CampanaRequest());
+        prepararFormulario(model);
         return "crm/campanas/formulario";
     }
 
@@ -49,6 +56,7 @@ public class CampanaController {
     public String crearCampana(@Valid @ModelAttribute CampanaRequest request, 
                                BindingResult result, Model model) {
         if (result.hasErrors()) {
+            prepararFormulario(model);
             return "crm/campanas/formulario";
         }
 
@@ -57,6 +65,7 @@ public class CampanaController {
             return "redirect:/crm/campanas/" + campana.getId();
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
+            prepararFormulario(model);
             return "crm/campanas/formulario";
         }
     }
@@ -86,6 +95,9 @@ public class CampanaController {
         try {
             Campana campana = campanaService.obtenerCampanaPorId(id);
             model.addAttribute("campana", campana);
+            model.addAttribute("campanaRequest", campanaService.convertirARequest(campana));
+            model.addAttribute("campanaId", campana.getId());
+            prepararFormulario(model);
             return "crm/campanas/editar";
         } catch (Exception e) {
             return "redirect:/crm/campanas";
@@ -98,8 +110,12 @@ public class CampanaController {
     @PostMapping("/{id}/actualizar")
     public String actualizarCampana(@PathVariable Long id, 
                                     @Valid @ModelAttribute CampanaRequest request,
-                                    BindingResult result) {
+                                    BindingResult result,
+                                    Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("campanaId", id);
+            model.addAttribute("campana", campanaService.obtenerCampanaPorId(id));
+            prepararFormulario(model);
             return "crm/campanas/editar";
         }
 
@@ -107,6 +123,10 @@ public class CampanaController {
             campanaService.actualizarCampana(id, request);
             return "redirect:/crm/campanas/" + id;
         } catch (Exception e) {
+            model.addAttribute("campanaId", id);
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("campana", campanaService.obtenerCampanaPorId(id));
+            prepararFormulario(model);
             return "crm/campanas/editar";
         }
     }
