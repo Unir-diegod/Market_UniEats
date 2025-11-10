@@ -1,11 +1,14 @@
 package com.remington.unieats.marketplace.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -14,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.remington.unieats.marketplace.dto.AnalyticsVendedorDTO;
+import com.remington.unieats.marketplace.dto.AnalyticsVendedorDTO.ProductoVendidoDTO;
+import com.remington.unieats.marketplace.dto.AnalyticsVendedorDTO.VentaDiariaDTO;
 import com.remington.unieats.marketplace.dto.CategoriaOpcionCreacionDTO;
 import com.remington.unieats.marketplace.dto.HorarioUpdateDTO;
 import com.remington.unieats.marketplace.dto.OpcionCreacionDTO;
@@ -261,5 +267,123 @@ public class VendedorServiceImpl implements VendedorService {
         return (int) pedidosHoy.stream()
             .filter(p -> p.getEstado().name().equals("COMPLETADO"))
             .count();
+    }
+
+    @Override
+    public AnalyticsVendedorDTO obtenerAnalytics(Tienda tienda) {
+        AnalyticsVendedorDTO analytics = new AnalyticsVendedorDTO();
+        
+        // Obtener todos los pedidos completados de la tienda
+        List<Pedido> pedidosCompletados = pedidoRepository.findByTiendaOrderByFechaCreacionDesc(tienda).stream()
+            .filter(p -> p.getEstado().name().equals("COMPLETADO"))
+            .collect(Collectors.toList());
+        
+        // KPIs principales
+        BigDecimal ventasTotales = pedidosCompletados.stream()
+            .map(Pedido::getTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        analytics.setVentasTotales(ventasTotales);
+        analytics.setTotalPedidos((long) pedidosCompletados.size());
+        
+        BigDecimal ventaPromedio = pedidosCompletados.isEmpty() 
+            ? BigDecimal.ZERO 
+            : ventasTotales.divide(BigDecimal.valueOf(pedidosCompletados.size()), 2, java.math.RoundingMode.HALF_UP);
+        analytics.setVentaPromedio(ventaPromedio);
+        
+        Long totalProductos = (long) productoRepository.findByTienda(tienda).size();
+        analytics.setTotalProductos(totalProductos);
+        
+        // Ventas por día (últimos 30 días)
+        LocalDate hoy = LocalDate.now();
+        List<VentaDiariaDTO> ventasPorDia = new ArrayList<>();
+        
+        for (int i = 29; i >= 0; i--) {
+            LocalDate fecha = hoy.minusDays(i);
+            LocalDateTime inicioDelDia = fecha.atStartOfDay();
+            LocalDateTime finDelDia = fecha.atTime(23, 59, 59);
+            
+            List<Pedido> pedidosDelDia = pedidosCompletados.stream()
+                .filter(p -> p.getFechaCreacion().isAfter(inicioDelDia) && 
+                            p.getFechaCreacion().isBefore(finDelDia))
+                .collect(Collectors.toList());
+            
+            BigDecimal ventasDelDia = pedidosDelDia.stream()
+                .map(Pedido::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            ventasPorDia.add(new VentaDiariaDTO(
+                fecha.toString(), 
+                ventasDelDia, 
+                (long) pedidosDelDia.size()
+            ));
+        }
+        analytics.setVentasPorDia(ventasPorDia);
+        
+        // Top 5 productos más vendidos
+        Map<String, ProductoVendidoStats> statsMap = new HashMap<>();
+        
+        for (Pedido pedido : pedidosCompletados) {
+            for (DetallePedido detalle : pedido.getDetalles()) {
+                String nombreProducto = detalle.getProducto().getNombre();
+                statsMap.putIfAbsent(nombreProducto, new ProductoVendidoStats());
+                ProductoVendidoStats stats = statsMap.get(nombreProducto);
+                stats.cantidad += detalle.getCantidad();
+                stats.ingresos = stats.ingresos.add(
+                    detalle.getPrecioUnitario().multiply(BigDecimal.valueOf(detalle.getCantidad()))
+                );
+            }
+        }
+        
+        List<ProductoVendidoDTO> topProductos = statsMap.entrySet().stream()
+            .sorted((e1, e2) -> Long.compare(e2.getValue().cantidad, e1.getValue().cantidad))
+            .limit(5)
+            .map(e -> new ProductoVendidoDTO(
+                e.getKey(), 
+                e.getValue().cantidad, 
+                e.getValue().ingresos
+            ))
+            .collect(Collectors.toList());
+        analytics.setTopProductos(topProductos);
+        
+        // Distribución de pedidos por estado
+        Map<String, Long> pedidosPorEstado = new HashMap<>();
+        List<Pedido> todosPedidos = pedidoRepository.findByTiendaOrderByFechaCreacionDesc(tienda);
+        
+        for (Pedido pedido : todosPedidos) {
+            String estado = pedido.getEstado().name();
+            pedidosPorEstado.put(estado, pedidosPorEstado.getOrDefault(estado, 0L) + 1);
+        }
+        analytics.setPedidosPorEstado(pedidosPorEstado);
+        
+        // Variación de ventas (comparar últimos 30 días vs 30 días anteriores)
+        LocalDateTime hace30Dias = hoy.minusDays(30).atStartOfDay();
+        LocalDateTime hace60Dias = hoy.minusDays(60).atStartOfDay();
+        
+        BigDecimal ventasUltimos30 = pedidosCompletados.stream()
+            .filter(p -> p.getFechaCreacion().isAfter(hace30Dias))
+            .map(Pedido::getTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal ventas30Anteriores = pedidosCompletados.stream()
+            .filter(p -> p.getFechaCreacion().isAfter(hace60Dias) && 
+                        p.getFechaCreacion().isBefore(hace30Dias))
+            .map(Pedido::getTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal variacion = BigDecimal.ZERO;
+        if (ventas30Anteriores.compareTo(BigDecimal.ZERO) > 0) {
+            variacion = ventasUltimos30.subtract(ventas30Anteriores)
+                .divide(ventas30Anteriores, 4, java.math.RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+        }
+        analytics.setVariacionVentas(variacion);
+        
+        return analytics;
+    }
+    
+    // Clase auxiliar para estadísticas de productos
+    private static class ProductoVendidoStats {
+        long cantidad = 0;
+        BigDecimal ingresos = BigDecimal.ZERO;
     }
 }

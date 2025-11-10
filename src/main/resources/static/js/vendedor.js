@@ -263,6 +263,12 @@ function startVendorApp() {
                 if (targetId === 'promociones') {
                     App.components.Promociones.cargarPromocionesActivas();
                 }
+                
+                // Cargar datos de analytics cuando se accede a esa vista
+                if (targetId === 'analytics') {
+                    window.Logger.info('Navigation', 'Cambiando a vista de Analytics - recargando datos');
+                    App.components.Analytics.init();
+                }
             },
             
             initModal(modalId, onOpen = () => {}) {
@@ -372,6 +378,7 @@ function startVendorApp() {
                     // Initialize components immediately - make them non-blocking
                     App.components.Pedidos.initNonBlocking(data);
                     App.components.Productos.init(data);
+                    App.components.Analytics.init(data);
                     App.components.Promociones.init(data);
                     App.components.Perfil.init(data);
                     
@@ -1778,19 +1785,304 @@ function startVendorApp() {
 
             Analytics: {
                 render(data) {
-                    // Este contenido será generado dinámicamente por powerbi.js
-                    return `<div id="view-analytics" class="main-view"><div class="flex items-center justify-center h-screen"><i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i></div></div>`;
+                    return `
+                    <div id="view-analytics" class="main-view p-4 pb-24 overflow-y-auto">
+                        <!-- Loading State -->
+                        <div id="analytics-loading" class="flex items-center justify-center h-screen">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
+                                <p class="text-slate-600">Cargando Analytics...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Analytics Content (hidden initially) -->
+                        <div id="analytics-content" class="hidden space-y-6">
+                            <!-- Header -->
+                            <header class="mb-6">
+                                <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                                    <i class="fas fa-chart-line text-indigo-600"></i>
+                                    Analytics
+                                </h1>
+                                <p class="text-slate-600 mt-1">Análisis de rendimiento de tu tienda</p>
+                            </header>
+
+                            <!-- KPIs -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <i class="fas fa-dollar-sign text-2xl text-green-600"></i>
+                                        <span id="variacion-badge" class="text-xs font-bold px-2 py-1 rounded-full"></span>
+                                    </div>
+                                    <p class="text-sm text-slate-600 mb-1">Ventas Totales</p>
+                                    <p id="ventas-totales" class="text-2xl font-bold text-slate-800">$0</p>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                                    <i class="fas fa-shopping-bag text-2xl text-blue-600 mb-2"></i>
+                                    <p class="text-sm text-slate-600 mb-1">Total Pedidos</p>
+                                    <p id="total-pedidos" class="text-2xl font-bold text-slate-800">0</p>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                                    <i class="fas fa-chart-bar text-2xl text-purple-600 mb-2"></i>
+                                    <p class="text-sm text-slate-600 mb-1">Venta Promedio</p>
+                                    <p id="venta-promedio" class="text-2xl font-bold text-slate-800">$0</p>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
+                                    <i class="fas fa-box text-2xl text-amber-600 mb-2"></i>
+                                    <p class="text-sm text-slate-600 mb-1">Productos</p>
+                                    <p id="total-productos" class="text-2xl font-bold text-slate-800">0</p>
+                                </div>
+                            </div>
+
+                            <!-- Gráfica de Ventas por Día -->
+                            <div class="bg-white rounded-xl shadow-md p-4">
+                                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-chart-area text-indigo-600"></i>
+                                    Ventas Últimos 30 Días
+                                </h3>
+                                <div id="chart-ventas-diarias"></div>
+                            </div>
+
+                            <!-- Productos Más Vendidos -->
+                            <div class="bg-white rounded-xl shadow-md p-4">
+                                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-fire text-orange-600"></i>
+                                    Top 5 Productos
+                                </h3>
+                                <div id="chart-top-productos"></div>
+                            </div>
+
+                            <!-- Distribución de Pedidos por Estado -->
+                            <div class="bg-white rounded-xl shadow-md p-4">
+                                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                    <i class="fas fa-pie-chart text-purple-600"></i>
+                                    Pedidos por Estado
+                                </h3>
+                                <div id="chart-pedidos-estado"></div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
                 },
+                
                 async init(data) {
-                    // Cargar el contenido de Analytics usando Power BI Manager
-                    if (window.powerBIManager) {
-                        const analyticsView = document.getElementById('view-analytics');
-                        if (analyticsView) {
-                            analyticsView.innerHTML = await window.powerBIManager.renderVistaAnalytics();
+                    try {
+                        // Fetch analytics data
+                        const response = await fetch('/api/vendedor/analytics', {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                [App.config.csrfHeader]: App.config.csrfToken
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Error al cargar analytics');
                         }
-                    } else {
-                        console.error('Power BI Manager no está cargado');
+
+                        const analytics = await response.json();
+                        
+                        // Hide loading, show content
+                        document.getElementById('analytics-loading').classList.add('hidden');
+                        document.getElementById('analytics-content').classList.remove('hidden');
+                        
+                        // Update KPIs
+                        document.getElementById('ventas-totales').textContent = 
+                            '$' + analytics.ventasTotales.toLocaleString('es-CO');
+                        document.getElementById('total-pedidos').textContent = 
+                            analytics.totalPedidos.toLocaleString('es-CO');
+                        document.getElementById('venta-promedio').textContent = 
+                            '$' + analytics.ventaPromedio.toLocaleString('es-CO');
+                        document.getElementById('total-productos').textContent = 
+                            analytics.totalProductos.toLocaleString('es-CO');
+                        
+                        // Variación badge
+                        const variacionBadge = document.getElementById('variacion-badge');
+                        const variacion = parseFloat(analytics.variacionVentas);
+                        if (variacion > 0) {
+                            variacionBadge.className = 'text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700';
+                            variacionBadge.innerHTML = `<i class="fas fa-arrow-up"></i> ${variacion.toFixed(1)}%`;
+                        } else if (variacion < 0) {
+                            variacionBadge.className = 'text-xs font-bold px-2 py-1 rounded-full bg-red-100 text-red-700';
+                            variacionBadge.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(variacion).toFixed(1)}%`;
+                        } else {
+                            variacionBadge.className = 'text-xs font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-700';
+                            variacionBadge.innerHTML = '0%';
+                        }
+                        
+                        // Render charts
+                        this.renderVentasDiariasChart(analytics.ventasPorDia);
+                        this.renderTopProductosChart(analytics.topProductos);
+                        this.renderPedidosEstadoChart(analytics.pedidosPorEstado);
+                        
+                    } catch (error) {
+                        console.error('Error al cargar analytics:', error);
+                        document.getElementById('analytics-loading').innerHTML = `
+                            <div class="text-center">
+                                <i class="fas fa-exclamation-circle text-4xl text-red-500 mb-4"></i>
+                                <p class="text-slate-700 font-semibold mb-2">Error al cargar Analytics</p>
+                                <p class="text-slate-500 text-sm">Intenta recargar la página</p>
+                            </div>
+                        `;
                     }
+                },
+                
+                renderVentasDiariasChart(ventasPorDia) {
+                    const fechas = ventasPorDia.map(v => {
+                        const fecha = new Date(v.fecha);
+                        return fecha.toLocaleDateString('es-CO', { month: 'short', day: 'numeric' });
+                    });
+                    const ventas = ventasPorDia.map(v => parseFloat(v.ventas));
+                    
+                    const options = {
+                        series: [{
+                            name: 'Ventas',
+                            data: ventas
+                        }],
+                        chart: {
+                            type: 'area',
+                            height: 300,
+                            toolbar: { show: false },
+                            zoom: { enabled: false }
+                        },
+                        dataLabels: { enabled: false },
+                        stroke: {
+                            curve: 'smooth',
+                            width: 2
+                        },
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shadeIntensity: 1,
+                                opacityFrom: 0.7,
+                                opacityTo: 0.2,
+                            }
+                        },
+                        colors: ['#4f46e5'],
+                        xaxis: {
+                            categories: fechas,
+                            labels: {
+                                rotate: -45,
+                                style: { fontSize: '10px' }
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                formatter: (val) => '$' + val.toLocaleString('es-CO')
+                            }
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: (val) => '$' + val.toLocaleString('es-CO')
+                            }
+                        }
+                    };
+                    
+                    const chart = new ApexCharts(document.querySelector("#chart-ventas-diarias"), options);
+                    chart.render();
+                },
+                
+                renderTopProductosChart(topProductos) {
+                    if (!topProductos || topProductos.length === 0) {
+                        document.getElementById('chart-top-productos').innerHTML = 
+                            '<p class="text-center text-slate-500 py-8">No hay datos disponibles</p>';
+                        return;
+                    }
+                    
+                    const nombres = topProductos.map(p => p.nombre);
+                    const cantidades = topProductos.map(p => parseInt(p.cantidadVendida));
+                    
+                    const options = {
+                        series: [{
+                            name: 'Unidades Vendidas',
+                            data: cantidades
+                        }],
+                        chart: {
+                            type: 'bar',
+                            height: 300,
+                            toolbar: { show: false }
+                        },
+                        plotOptions: {
+                            bar: {
+                                horizontal: true,
+                                borderRadius: 8,
+                                dataLabels: { position: 'top' }
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            offsetX: 30,
+                            style: {
+                                fontSize: '12px',
+                                colors: ['#304758']
+                            }
+                        },
+                        colors: ['#f59e0b'],
+                        xaxis: {
+                            categories: nombres
+                        },
+                        tooltip: {
+                            y: {
+                                formatter: (val) => val + ' unidades'
+                            }
+                        }
+                    };
+                    
+                    const chart = new ApexCharts(document.querySelector("#chart-top-productos"), options);
+                    chart.render();
+                },
+                
+                renderPedidosEstadoChart(pedidosPorEstado) {
+                    if (!pedidosPorEstado || Object.keys(pedidosPorEstado).length === 0) {
+                        document.getElementById('chart-pedidos-estado').innerHTML = 
+                            '<p class="text-center text-slate-500 py-8">No hay datos disponibles</p>';
+                        return;
+                    }
+                    
+                    const estadoLabels = {
+                        'PENDIENTE': 'Pendiente',
+                        'ACEPTADO': 'Aceptado',
+                        'EN_PREPARACION': 'En Preparación',
+                        'LISTO': 'Listo',
+                        'COMPLETADO': 'Completado',
+                        'CANCELADO': 'Cancelado'
+                    };
+                    
+                    const labels = Object.keys(pedidosPorEstado).map(k => estadoLabels[k] || k);
+                    const series = Object.values(pedidosPorEstado).map(v => parseInt(v));
+                    
+                    const options = {
+                        series: series,
+                        chart: {
+                            type: 'donut',
+                            height: 300
+                        },
+                        labels: labels,
+                        colors: ['#fbbf24', '#3b82f6', '#8b5cf6', '#10b981', '#22c55e', '#ef4444'],
+                        legend: {
+                            position: 'bottom'
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            formatter: (val) => val.toFixed(1) + '%'
+                        },
+                        responsive: [{
+                            breakpoint: 480,
+                            options: {
+                                chart: {
+                                    height: 250
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }]
+                    };
+                    
+                    const chart = new ApexCharts(document.querySelector("#chart-pedidos-estado"), options);
+                    chart.render();
                 }
             },
 

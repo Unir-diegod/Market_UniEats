@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.remington.unieats.marketplace.dto.AnalyticsVendedorDTO;
 import com.remington.unieats.marketplace.dto.CategoriaOpcionCreacionDTO;
 import com.remington.unieats.marketplace.dto.HorarioUpdateDTO;
 import com.remington.unieats.marketplace.dto.PedidoVendedorDTO;
@@ -41,4 +42,7 @@ public interface VendedorService {
     Double calcularVentasHoy(Tienda tienda);
     Integer contarPedidosNuevos(Tienda tienda);
     Integer contarPedidosCompletadosHoy(Tienda tienda);
+    
+    // Método para Analytics
+    AnalyticsVendedorDTO obtenerAnalytics(Tienda tienda);
 }

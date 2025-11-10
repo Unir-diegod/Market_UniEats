@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.remington.unieats.marketplace.dto.AnalyticsVendedorDTO;
 import com.remington.unieats.marketplace.dto.CategoriaOpcionCreacionDTO;
 import com.remington.unieats.marketplace.dto.DashboardVendedorDTO;
 import com.remington.unieats.marketplace.dto.HorarioUpdateDTO;
@@ -86,6 +87,20 @@ public class VendedorController {
                     return ResponseEntity.ok(pedidos);
                 })
                 .orElse(ResponseEntity.ok(Collections.emptyList()));
+    }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<AnalyticsVendedorDTO> obtenerAnalytics(Authentication authentication) {
+        String correo = authentication.getName();
+        Usuario vendedor = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new IllegalStateException("Vendedor no encontrado."));
+        
+        return vendedorService.findTiendaByVendedor(vendedor)
+                .map(tienda -> {
+                    AnalyticsVendedorDTO analytics = vendedorService.obtenerAnalytics(tienda);
+                    return ResponseEntity.ok(analytics);
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping("/tienda/crear")
