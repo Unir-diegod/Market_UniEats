@@ -7,7 +7,8 @@ public enum ClasificacionProducto {
     BEBIDAS("Bebidas"),
     POSTRES("Postres"),
     SNACKS("Snacks"),
-    SALUDABLE("Saludable");
+    SALUDABLE("Saludable"),
+    SIN_CATEGORIA("Sin Categoría");
 
     private final String displayName;
 

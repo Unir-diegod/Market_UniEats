@@ -4,6 +4,7 @@ import com.remington.unieats.marketplace.dto.crm.EstadisticasCRMDTO;
 import com.remington.unieats.marketplace.dto.crm.DashboardCRMDTO;
 import com.remington.unieats.marketplace.service.crm.EstadisticasCRMService;
 import com.remington.unieats.marketplace.service.crm.DashboardCRMService;
+import com.remington.unieats.marketplace.model.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/crm/dashboard")
@@ -24,6 +26,24 @@ public class DashboardCRMController {
 
     @Autowired
     private DashboardCRMService dashboardService;
+    
+    @Autowired
+    private ClienteRepository clienteRepository;
+    
+    @Autowired
+    private CampanaRepository campanaRepository;
+    
+    @Autowired
+    private SegmentoRepository segmentoRepository;
+    
+    @Autowired
+    private EmailTemplateRepository emailTemplateRepository;
+    
+    @Autowired
+    private InteraccionClienteRepository interaccionRepository;
+    
+    @Autowired
+    private NotificacionMarketingRepository notificacionRepository;
 
     /**
      * Dashboard principal de CRM
@@ -76,4 +96,29 @@ public class DashboardCRMController {
         Map<String, Long> stats = estadisticasService.obtenerInteraccionesPorTipo(desde);
         return ResponseEntity.ok(stats);
     }
+    
+    /**
+     * ENDPOINT DE DEBUG: Verificar conteo de datos CRM en la base de datos
+     */
+    @GetMapping("/api/debug/conteo-datos")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> debugConteoDatos() {
+        Map<String, Object> conteo = new HashMap<>();
+        
+        try {
+            conteo.put("clientes", clienteRepository.count());
+            conteo.put("campanas", campanaRepository.count());
+            conteo.put("segmentos", segmentoRepository.count());
+            conteo.put("emailTemplates", emailTemplateRepository.count());
+            conteo.put("interacciones", interaccionRepository.count());
+            conteo.put("notificaciones", notificacionRepository.count());
+            conteo.put("status", "success");
+        } catch (Exception e) {
+            conteo.put("status", "error");
+            conteo.put("error", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(conteo);
+    }
 }
+

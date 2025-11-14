@@ -351,7 +351,15 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         getTiendas: () => Api._fetch('/api/marketplace/tiendas'),
         getTienda: (id) => Api._fetch(`/api/marketplace/tiendas/${id}`),
-        getProductos: () => Api._fetch('/api/marketplace/productos'),
+        getProductos: async () => {
+            console.log('📦 Llamando a /api/marketplace/productos');
+            const productos = await Api._fetch('/api/marketplace/productos');
+            console.log('📦 Productos recibidos:', productos ? productos.length : 0);
+            if (productos && productos.length > 0) {
+                console.log('📦 Primer producto completo:', JSON.stringify(productos[0], null, 2));
+            }
+            return productos;
+        },
         getProductosDeTienda: (tiendaId) => Api._fetch(`/api/marketplace/productos/tienda/${tiendaId}`),
         getProductoDetalle: (id) => Api._fetch(`/api/marketplace/productos/${id}`),
         getMisPedidos: () => Api._fetch('/api/pedidos/mis-pedidos'),
@@ -3506,7 +3514,10 @@ getCarouselTiendasHTML(tiendas) {
                 console.error('❌ Error obteniendo recomendaciones ML en vista principal:', error);
             }
             
+            console.log('🔍 Productos recibidos en getPopularCategoriesViewHTML:', productos ? productos.length : 0);
+            
             if (!productos || productos.length === 0) {
+                console.error('❌ No hay productos para mostrar');
                 return `
                     <div class="flex flex-col items-center justify-center h-64 text-gray-500 mx-4">
                         <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mb-6">
@@ -3525,13 +3536,55 @@ getCarouselTiendasHTML(tiendas) {
             const productsByCategory = {};
             productos.forEach(producto => {
                 const categoria = producto.clasificacion || 'OTROS';
+                console.log(`📦 Producto "${producto.nombre}" tiene clasificacion: "${producto.clasificacion}"`);
                 if (!productsByCategory[categoria]) {
                     productsByCategory[categoria] = [];
                 }
                 productsByCategory[categoria].push(producto);
             });
+            
+            console.log('📊 Productos agrupados:', productsByCategory);
 
             let html = '';
+            
+            // Si HAY productos sin categoría válida, mostrarlos todos en una sección genérica
+            if (productsByCategory['OTROS'] || Object.keys(productsByCategory).length === 0) {
+                console.log('⚠️ Hay productos sin categoría o con categorías no reconocidas');
+                
+                // Mostrar TODOS los productos en una sola sección
+                html += `
+                    <div class="mb-6">
+                        <!-- Header de categoría -->
+                        <div class="flex items-center justify-between px-4 mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="relative">
+                                    <div class="w-8 h-8 bg-purple-500 rounded-xl flex items-center justify-center shadow-md">
+                                        <span class="text-white text-sm">🍽️</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-bold text-gray-900">Todos los productos</h2>
+                                    <p class="text-gray-500 text-xs">${productos.length} productos disponibles</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Grid de productos -->
+                        <div class="px-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                ${productos.map(producto => this.generateUniversityProductCard(producto)).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                return `
+                    <div id="productos-container">
+                        ${recomendacionesMLHTML}
+                        ${html}
+                    </div>
+                `;
+            }
             
             // Mensaje contextual moderno con glassmorphism
             const now = new Date();
@@ -3619,8 +3672,11 @@ getCarouselTiendasHTML(tiendas) {
             `;
             
             // Renderizar categorías con diseño moderno
+            console.log('🎨 categoryOrder:', categoryOrder);
+            console.log('📦 productsByCategory:', productsByCategory);
             categoryOrder.forEach((categoria, index) => {
                 const productosCategoria = productsByCategory[categoria.dbValue];
+                console.log(`📊 Categoría ${categoria.name} (${categoria.dbValue}): ${productosCategoria ? productosCategoria.length : 0} productos`);
                 if (!productosCategoria || productosCategoria.length === 0) return;
 
                 html += `

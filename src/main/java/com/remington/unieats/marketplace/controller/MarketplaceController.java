@@ -60,4 +60,29 @@ public class MarketplaceController {
         List<ProductoPublicoDTO> productos = marketplaceService.buscarProductos(termino);
         return ResponseEntity.ok(productos);
     }
+    
+    @GetMapping("/debug/clasificaciones")
+    public ResponseEntity<?> debugClasificaciones() {
+        List<ProductoPublicoDTO> productos = marketplaceService.getProductosPopulares();
+        java.util.Map<String, Long> clasificaciones = productos.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                p -> p.getClasificacion() != null ? p.getClasificacion().toString() : "NULL",
+                java.util.stream.Collectors.counting()
+            ));
+        
+        java.util.Map<String, Object> debug = new java.util.HashMap<>();
+        debug.put("totalProductos", productos.size());
+        debug.put("clasificaciones", clasificaciones);
+        debug.put("primeros3Productos", productos.stream()
+            .limit(3)
+            .map(p -> java.util.Map.of(
+                "id", p.getId(),
+                "nombre", p.getNombre(),
+                "clasificacion", p.getClasificacion() != null ? p.getClasificacion().toString() : "NULL"
+            ))
+            .collect(java.util.stream.Collectors.toList()));
+        
+        return ResponseEntity.ok(debug);
+    }
 }
+
